@@ -1,2 +1,2 @@
 # generator
-A WIP Java FX CRUD code generator
+A WIP JavaFX CRUD code generator
