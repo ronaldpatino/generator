@@ -59,23 +59,15 @@
                                 #foreach( $field in $fields )
                                     #set( $rowIndex = $foreach.count - 1 )
                                     #if($field.visible)
-                                        #set( $opacity = "0.0" )
-                                    #else
-                                        #set( $opacity = "1.0" )
-                                    #end
-
-                                    #if($field.visible)
                                         #set( $opacity = "1.0" )
                                     #else
                                         #set( $opacity = "0.0" )
                                     #end
-
                                     #if($field.editable)
                                         #set( $editable = "true" )
                                     #else
                                         #set( $editable = "false" )
                                     #end
-
                                     #if($field.uiComponent =="TextField")
                                     <TextField fx:id="frm${field.upperCaseFirst}"
                                                GridPane.columnIndex="2"
