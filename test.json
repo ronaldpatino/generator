@@ -1,5 +1,6 @@
 {
   "javaPackage": "com.sigecloud.app.importar",
+  "validatorJavaPackage": "com.sigecloud.util.validators.interfaces",
   "className":"Importar",
   "classNameInstance": "importar",
   "objectName":"importarObject",

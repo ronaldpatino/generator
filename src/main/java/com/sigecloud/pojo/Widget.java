@@ -13,6 +13,7 @@ public class Widget {
     private String sortByField;
     private String findByField;
     private String javaPackage;
+    private String validatorJavaPackage;
     private List<Field> fields = null;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -78,6 +79,14 @@ public class Widget {
 
     public void setJavaPackage(String javaPackage) {
         this.javaPackage = javaPackage;
+    }
+
+    public String getValidatorJavaPackage() {
+        return validatorJavaPackage;
+    }
+
+    public void setValidatorJavaPackage(String validatorJavaPackage) {
+        this.validatorJavaPackage = validatorJavaPackage;
     }
 
     public Map<String, Object> getAdditionalProperties() {

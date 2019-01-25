@@ -1,11 +1,9 @@
 package com.sigecloud.util;
 
-import com.google.common.base.CaseFormat;
 import com.sigecloud.pojo.Widget;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.RuntimeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +17,8 @@ public class CodeGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeGenerator.class);
     private static String SAVE_PATH = System.getProperty("user.dir") + File.separator + "generated" + File.separator;
-    private static String PACKAGE_PATH;
+    private static String JAVA_PACKAGE_PATH;
+    private static String VALIDATOR_JAVA_PACKAGE_PATH;
 
     private static String CSS_TEMPLATE_FILE = "templates/css.vm";
     private static String FXML_TEMPLATE_FILE = "templates/fxml.vm";
@@ -49,32 +48,32 @@ public class CodeGenerator {
 
         context = new VelocityContext();
         velocityEngine = new VelocityEngine();
-        velocityEngine.setProperty(RuntimeConstants.FILE_RESOURCE_LOADER_PATH, "src/main/resources/templates");
         velocityEngine.init(p);
 
         cssTemplate  = velocityEngine.getTemplate(CSS_TEMPLATE_FILE);
         fxmlTemplate = velocityEngine.getTemplate(FXML_TEMPLATE_FILE);
-        //presenterTemplate = velocityEngine.getTemplate(PRESENTER_TEMPLATE_FILE);
+        presenterTemplate = velocityEngine.getTemplate(PRESENTER_TEMPLATE_FILE);
         viewTemplate  = velocityEngine.getTemplate(VIEW_TEMPLATE_FILE);
         serviceTemplate  = velocityEngine.getTemplate(SERVICE_TEMPLATE_FILE);
-        //editCheckTemplate = velocityEngine.getTemplate(EDIT_CHECK_TEMPLATE_FILE);
-        //insertCheckTemplate = velocityEngine.getTemplate(INSERT_CHECK_TEMPLATE_FILE);
+        editCheckTemplate = velocityEngine.getTemplate(EDIT_CHECK_TEMPLATE_FILE);
+        insertCheckTemplate = velocityEngine.getTemplate(INSERT_CHECK_TEMPLATE_FILE);
 
-
-        PACKAGE_PATH = widget.getJavaPackage().replace(".","/") + File.separator;
-
+        JAVA_PACKAGE_PATH = widget.getJavaPackage().replace(".","/") + File.separator;
+        VALIDATOR_JAVA_PACKAGE_PATH = widget.getValidatorJavaPackage().replace(".","/") + File.separator;
 
     }
 
     public void generate(){
 
         context.put("javaPackage", w.getJavaPackage());
-        context.put("fields", w.getFields());
+        context.put("validatorJavaPackage", w.getValidatorJavaPackage());
         context.put("className", w.getClassName());
         context.put("classNameInstance", w.getClassNameInstance());
         context.put("objectName", w.getObjectName());
         context.put("sortBy", w.getSortByField());
         context.put("findBy", w.getSortByField());
+        context.put("fields", w.getFields());
+
 
 
         StringWriter css = new StringWriter();
@@ -83,44 +82,44 @@ public class CodeGenerator {
         StringWriter fxml = new StringWriter();
         fxmlTemplate.merge( context, fxml );
 
-        /*
+
         StringWriter presenter = new StringWriter();
         presenterTemplate.merge( context, presenter );
-*/
+
         StringWriter view = new StringWriter();
         viewTemplate.merge( context, view );
 
 
         StringWriter service = new StringWriter();
         serviceTemplate.merge( context, service );
-/*
+
         StringWriter editCheck = new StringWriter();
         editCheckTemplate.merge( context, editCheck );
 
         StringWriter insertCheck = new StringWriter();
         insertCheckTemplate.merge( context, insertCheck );
-*/
-        writeToFile(w.getClassName().toLowerCase() + ".css", css);
-        writeToFile(w.getClassName() + ".fxml", fxml);
-        //writeToFile(className + "Presenter.java", presenter);
-        writeToFile(w.getClassName() + "View.java", view);
-        writeToFile(w.getClassName() + "Service.java", service);
-        //writeToFile(className + "EditCheck.java", editCheck);
-        //writeToFile(className + "InsertCheck.java", insertCheck);
+
+        writeToFile(w.getClassName().toLowerCase() + ".css", css, JAVA_PACKAGE_PATH);
+        writeToFile(w.getClassName() + ".fxml", fxml, JAVA_PACKAGE_PATH);
+        writeToFile(w.getClassName() + "Presenter.java", presenter, JAVA_PACKAGE_PATH);
+        writeToFile(w.getClassName() + "View.java", view, JAVA_PACKAGE_PATH);
+        writeToFile(w.getClassName() + "Service.java", service, JAVA_PACKAGE_PATH);
+        writeToFile(w.getClassName() + "EditCheck.java", editCheck, VALIDATOR_JAVA_PACKAGE_PATH);
+        writeToFile(w.getClassName() + "InsertCheck.java", insertCheck, VALIDATOR_JAVA_PACKAGE_PATH);
 
 
     }
 
-    private void writeToFile(String fileToWrite, StringWriter contentToWrite){
+    private void writeToFile(String fileToWrite, StringWriter contentToWrite, String packagePath){
 
         String fileToSave = SAVE_PATH +
-                PACKAGE_PATH +
+                packagePath +
                 File.separator +
                 fileToWrite;
         try {
 
             new File(SAVE_PATH +
-                    PACKAGE_PATH)
+                    packagePath)
                     .mkdirs();
 
             FileWriter fw = new FileWriter(fileToSave);
@@ -132,4 +131,7 @@ public class CodeGenerator {
             LOGGER.error(e.toString());
         }
     }
+
+
+
 }
