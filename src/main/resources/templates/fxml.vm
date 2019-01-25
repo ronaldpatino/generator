@@ -34,101 +34,95 @@
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity" prefWidth="100.0" />
                                     </columnConstraints>
                                     <rowConstraints>
-                                    #foreach( $field in $fields )
-                                    #if($field.tipoComponente =="CheckListView")
-                                    <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="150.0" vgrow="SOMETIMES" />
-                                    #else
-                                    <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
-                                    #end
-                                    #end
-                                    <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
-                                    <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
-                                    <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                                     #foreach( $field in $fields )
+                                        #if($field.uiComponent =="CheckListView")
+                                        <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="150.0" vgrow="SOMETIMES" />
+                                        #else
+                                        <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                                        #end
+                                     #end
+                                        <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                                        <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                                        <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
+                                #foreach( $field in $fields )
+                                    #set( $rowIndex = $foreach.count - 1 )
+                                    #if($field.visible)
+                                    <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="30.0" prefWidth="200.0" text="${field.label}" GridPane.columnIndex="1" GridPane.rowIndex="${rowIndex}">
+                                        <padding>
+                                            <Insets right="10.0" />
+                                        </padding>
+                                    </Label>
+                                    #end
+                                #end
+                                #foreach( $field in $fields )
+                                    #set( $rowIndex = $foreach.count - 1 )
+                                    #if($field.visible)
+                                        #set( $opacity = "0.0" )
+                                    #else
+                                        #set( $opacity = "1.0" )
+                                    #end
 
+                                    #if($field.visible)
+                                        #set( $opacity = "1.0" )
+                                    #else
+                                        #set( $opacity = "0.0" )
+                                    #end
 
-#foreach( $field in $fields )
-#set( $rowIndex = $velocityCount - 1 )
-#if($field.visible)
-                                        <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="30.0" prefWidth="200.0" text="${field.label}" GridPane.columnIndex="1" GridPane.rowIndex="${rowIndex}">
-                                            <padding>
-                                                <Insets right="10.0" />
-                                            </padding>
-                                        </Label>
-#end
-#end
-#foreach( $field in $fields )
-#set( $rowIndex = $velocityCount - 1 )
-#if($field.visible)
-#set( $opacity = "0.0" )
-#else
-#set( $opacity = "1.0" )
-#end
+                                    #if($field.editable)
+                                        #set( $editable = "true" )
+                                    #else
+                                        #set( $editable = "false" )
+                                    #end
 
-
-
-#if($field.visible)
-    #set( $opacity = "1.0" )
-#else
-    #set( $opacity = "0.0" )
-#end
-
-#if($field.editable)
-    #set( $editable = "true" )
-#else
-    #set( $editable = "false" )
-#end
-
-
-#if($field.tipoComponente =="TextField")
-    <TextField fx:id="frm${field.upperCaseFirst}"
-               GridPane.columnIndex="2"
-               GridPane.rowIndex="${rowIndex}"
-               opacity="${opacity}"
-               editable="${editable}"/>
-#elseif($field.tipoComponente =="CheckListView")
-    <CheckListView fx:id="frm${field.upperCaseFirst}"
-                   GridPane.columnIndex="2"
-                   GridPane.rowIndex="${rowIndex}"
-                   opacity="${opacity}"
-                   editable="${editable}">
-        <GridPane.margin><Insets top="5.0" /></GridPane.margin>
-    </CheckListView>
-#elseif($field.tipoComponente =="ComboBox")
-    <ComboBox fx:id="frm${field.upperCaseFirst}"
-            prefWidth="150.0"
-            GridPane.columnIndex="2"
-            GridPane.rowIndex="${rowIndex}"
-            opacity="${opacity}"
-            editable="${editable}">
-    </ComboBox>
-#elseif($field.tipoComponente =="TextArea")
-    <TextArea fx:id="frm${field.upperCaseFirst}"
-            prefHeight="200.0"
-            prefWidth="200.0"
-            GridPane.columnIndex="2"
-            GridPane.rowIndex="${rowIndex}"
-            GridPane.vgrow="SOMETIMES"
-            opacity="${opacity}"
-            editable="${editable}">
-        <GridPane.margin><Insets top="10.0" /></GridPane.margin>
-    </TextArea>
-#end
-#end
-                                        #set( $botonesRow = $fields.size() +1 )
-                                        <JFXButton fx:id="cancelarBtn" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" onAction="#cancelarBtnAction" prefWidth="100.0" style="-fx-background-color: #808080;" text="Cancelar" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="${botonesRow}">
-                                            <graphic>
-                                                <FontIcon iconColor="WHITE" iconLiteral="fas-times-circle" />
-                                            </graphic>
-                                            <GridPane.margin>
-                                                <Insets right="5.0" />
-                                            </GridPane.margin></JFXButton>
-                                        <JFXButton fx:id="guardarBtn" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" onAction="#guardarBtnAction" prefWidth="100.0" style="-fx-background-color: #33b753;" text="Guardar" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="${botonesRow}">
-                                            <graphic>
-                                                <FontIcon iconColor="WHITE" iconLiteral="fas-save" />
-                                            </graphic></JFXButton>
-
+                                    #if($field.uiComponent =="TextField")
+                                    <TextField fx:id="frm${field.upperCaseFirst}"
+                                               GridPane.columnIndex="2"
+                                               GridPane.rowIndex="${rowIndex}"
+                                               opacity="${opacity}"
+                                               editable="${editable}"/>
+                                    #elseif($field.uiComponent =="CheckListView")
+                                    <CheckListView fx:id="frm${field.upperCaseFirst}"
+                                                   GridPane.columnIndex="2"
+                                                   GridPane.rowIndex="${rowIndex}"
+                                                   opacity="${opacity}"
+                                                   editable="${editable}">
+                                        <GridPane.margin><Insets top="5.0" /></GridPane.margin>
+                                    </CheckListView>
+                                    #elseif($field.uiComponent =="ComboBox")
+                                    <ComboBox fx:id="frm${field.upperCaseFirst}"
+                                            prefWidth="150.0"
+                                            GridPane.columnIndex="2"
+                                            GridPane.rowIndex="${rowIndex}"
+                                            opacity="${opacity}"
+                                            editable="${editable}">
+                                    </ComboBox>
+                                    #elseif($field.uiComponent =="TextArea")
+                                    <TextArea fx:id="frm${field.upperCaseFirst}"
+                                            prefHeight="200.0"
+                                            prefWidth="200.0"
+                                            GridPane.columnIndex="2"
+                                            GridPane.rowIndex="${rowIndex}"
+                                            GridPane.vgrow="SOMETIMES"
+                                            opacity="${opacity}"
+                                            editable="${editable}">
+                                        <GridPane.margin><Insets top="10.0" /></GridPane.margin>
+                                    </TextArea>
+                                    #end
+                                #end
+                                #set( $botonesRow = $fields.size() +1 )
+                                    <JFXButton fx:id="cancelarBtn" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" onAction="#cancelarBtnAction" prefWidth="100.0" style="-fx-background-color: #808080;" text="Cancelar" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="${botonesRow}">
+                                        <graphic>
+                                            <FontIcon iconColor="WHITE" iconLiteral="fas-times-circle" />
+                                        </graphic>
+                                        <GridPane.margin>
+                                            <Insets right="5.0" />
+                                        </GridPane.margin></JFXButton>
+                                    <JFXButton fx:id="guardarBtn" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" onAction="#guardarBtnAction" prefWidth="100.0" style="-fx-background-color: #33b753;" text="Guardar" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="${botonesRow}">
+                                        <graphic>
+                                            <FontIcon iconColor="WHITE" iconLiteral="fas-save" />
+                                        </graphic></JFXButton>
                                     </children>
                                 </GridPane>
                             </center>
@@ -137,11 +131,11 @@
                             <top>
                                 <GridPane BorderPane.alignment="CENTER">
                                     <columnConstraints>
-#foreach( $field in $fields )
-#if($field.visible)
-                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-#end
-#end
+                                    #foreach( $field in $fields )
+                                        #if($field.visible)
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                        #end
+                                    #end
                                     </columnConstraints>
                                     <rowConstraints>
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -169,13 +163,13 @@
                             <center>
                                 <TableView fx:id="${classNameInstance}Table" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" onSort="#${classNameInstance}TableSort" prefHeight="400.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                                     <columns>
-#foreach( $field in $fields )
-#if($field.visible)
+                                    #foreach( $field in $fields )
+                                        #if($field.visible)
                                         <TableColumn fx:id="${field.name}" prefWidth="75.0" text="${field.label}" />
-#else
+                                        #else
                                         <TableColumn fx:id="${field.name}" prefWidth="75.0" text="${field.label}" visible="false" />
-#end
-#end
+                                        #end
+                                    #end
                                     </columns>
                                     <columnResizePolicy>
                                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

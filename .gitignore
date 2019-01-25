@@ -27,3 +27,12 @@ hs_err_pid*
 /generated/*
 /.idea/*
 generator.iml
+.idea/compiler.xml
+.idea/libraries/
+.idea/misc.xml
+.idea/modules.xml
+.idea/uiDesigner.xml
+.idea/workspace.xml
+generated/
+src/test/
+target/

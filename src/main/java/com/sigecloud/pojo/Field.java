@@ -107,7 +107,7 @@ public class Field {
         this.additionalProperties.put(name, value);
     }
 
-    public String upperCaseFirst(){
+    public String getUpperCaseFirst(){
         return StringUtils.capitalize(this.name);
     }
 }
