@@ -1,0 +1,485 @@
+package ${javaPackage}
+
+import com.jfoenix.controls.JFXButton;
+import com.sigecloud.dao.service.GenericServiceImpl;
+import com.sigecloud.domain.${className};
+import com.sigecloud.util.Config;
+import com.sigecloud.util.FxUtil;
+import com.sigecloud.util.HibernateUtils;
+import com.sigecloud.util.ScUtil;
+import com.sigecloud.util.pager.Pager;
+import com.sigecloud.util.validators.interfaces.${className}EditCheck;
+import com.sigecloud.util.validators.interfaces.${className}InsertCheck;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
+import org.controlsfx.control.BreadCrumbBar;
+import org.controlsfx.validation.ValidationSupport;
+import org.controlsfx.validation.Validator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+import java.net.URL;
+import java.util.ResourceBundle;
+import java.util.Set;
+
+
+public class ${className}Presenter implements Initializable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(${className}Presenter.class);
+    // Breadcrum
+    private TreeItem<String> root = new TreeItem<>("${className}");
+    private TreeItem<String> crear = new TreeItem<>("Crear");
+    private TreeItem<String> editar = new TreeItem<>("Editar");
+
+    //Context Menu
+    private ContextMenu contextMenu = new ContextMenu();
+    private MenuItem editarMenu = new MenuItem("Editar");
+    private MenuItem crearFacturaMenu = new MenuItem("Crear Factura");
+    private MenuItem crearProformaMenu = new MenuItem("Crear Proforma");
+    private MenuItem registrarPagoMenu = new MenuItem("Registrar Pago");
+
+    //Local Variables
+    private Boolean editActive = false;
+    private ${className} ${classNameInstance};
+    private String validationErrors = "";
+    ValidationSupport validation = new ValidationSupport();
+
+    //Paginacion
+    private Pager<${className}> paginador;
+
+    //Service Layer
+    private GenericServiceImpl<${className}> ${classNameInstance}Service;
+    //BEGIN Components
+#foreach( $field in $fields )
+    #if(${field.uiComponent} == "CheckListView" || ${field.uiComponent} == "ComboBox")
+    @FXML
+    private ${field.uiComponent}<${field.upperCaseFirst}> frm${field.upperCaseFirst};
+    #else
+    @FXML
+    private ${field.uiComponent} frm${field.upperCaseFirst};
+    #end
+#end
+    //END Components
+    @FXML
+    private JFXButton cancelarBtn;
+
+    @FXML
+    private JFXButton guardarBtn;
+
+    @FXML
+    private BorderPane listPane;
+
+    @FXML
+    private JFXButton crearBtn;
+
+    @FXML
+    private TextField buscar;
+
+    //BEGIN Table
+    @FXML
+    private TableView<${className}> ${classNameInstance}Table;
+
+    //Table Fields
+#foreach( $field in $fields )
+    @FXML
+    private TableColumn<${className}, ${field.dataType}> ${field.name};
+
+#end
+
+    //END Table
+    @FXML
+    private StackPane ${classNameInstance}StackPane;
+
+    @FXML
+    private BorderPane ${classNameInstance}ListPane;
+
+    @FXML
+    private GridPane crearPane;
+
+
+    //BEGIN Pagination
+    @FXML
+    private ComboBox<Integer> ${classNameInstance}RegistrosPagina;
+
+    @FXML
+    private ComboBox<Integer> paginaActual;
+
+    @FXML
+    private JFXButton paginaActualIzq;
+
+    @FXML
+    private JFXButton paginaActualDer;
+
+    @FXML
+    private BreadCrumbBar<String> ${classNameInstance}Bcb;
+
+    //END Pagination
+
+    @FXML
+    void cancelarBtnAction(ActionEvent event) {
+        ${classNameInstance}Bcb.selectedCrumbProperty().set(root);
+        editActive = false;
+        changeTop();
+    }
+
+    @FXML
+    void crearBtnAction(ActionEvent event) {
+
+        ${classNameInstance}Bcb.selectedCrumbProperty().set(crear);
+        reset${className}Form();
+        changeTop();
+    }
+
+    @FXML
+    void guardarBtnAction(ActionEvent event) {
+
+        ${classNameInstance} = new ${className}();
+
+        if(editActive) {
+            ${classNameInstance}.setId(Integer.valueOf(frmId.getText()));
+        }
+#foreach( $field in $fields )
+    #if (${field.name} != "id")
+        #if(${field.dataType} == "BigDecimal" && ${field.uiComponent} == "TextField")
+
+        if (frm${field.upperCaseFirst}.getText().length() > 0) {
+            ${classNameInstance}.set${field.upperCaseFirst}(new BigDecimal(frm${field.upperCaseFirst}.getText()));
+        }
+        else {
+            frm${field.upperCaseFirst} = null;
+        }
+
+        #elseif(${field.dataType} == "Integer" || ${field.dataType} == "int"  && ${field.uiComponent} == "TextField")
+
+        if(frm${field.upperCaseFirst}.getText().length() > 0){
+            ${classNameInstance}.set${field.upperCaseFirst}(Integer.valueOf(frm${field.upperCaseFirst}.getText()));
+        }
+
+        #elseif((${field.dataType} == "Integer" || ${field.dataType} == "int" || ${field.dataType} == "BigDecimal")
+            && (${field.uiComponent} == "CheckListView"  || ${field.uiComponent} == "ComboBox"))
+
+        if (frm${field.upperCaseFirst}.getCheckModel().getCheckedItems() != null){
+            Set<${field.upperCaseFirst}> ${field.lowerCaseFirst}s = new HashSet<>();
+            for (${field.upperCaseFirst} i:frm${field.upperCaseFirst}.getCheckModel().getCheckedItems()) {
+                ${field.lowerCaseFirst}s.add(i);
+            }
+            ${classNameInstance}.set${field.upperCaseFirst}s(${field.lowerCaseFirst}s);
+        }
+
+        #else
+
+        ${classNameInstance}.set${field.upperCaseFirst}(frm${field.upperCaseFirst}.getText().toUpperCase());
+        #end
+    #end
+#end
+
+        if (validateForm()){
+            if (!editActive) {
+
+                if (${classNameInstance}Service.save(${classNameInstance}) != null) {
+                    reset${className}Form();
+                    callPaginate();
+                    changeTop();
+                    ScUtil.notification("${className} Creado",
+                            " ${className} Creado Correctamente",
+                            Duration.seconds(Double.parseDouble(Config.getValue("default.timeout_okmsg"))),
+                            ScUtil.NotificationType.SIMPLE);
+                }
+                else {
+                    ScUtil.notification("Error creando ${className}",
+                            "Se produjo un error al crear ${className}",
+                            Duration.seconds(Double.parseDouble(Config.getValue("default.timeout_errormsg"))),
+                            ScUtil.NotificationType.ERROR);
+                }
+            }
+
+            else {
+
+                LOGGER.info("Updating  " + ${classNameInstance});
+
+                if (${classNameInstance}Service.update(${classNameInstance})) {
+                    editActive = false;
+                    ScUtil.notification("${className} Actualizado",
+                            "${className} Actualizado Corectamente",
+                            Duration.seconds(Double.parseDouble(Config.getValue("default.timeout_okmsg"))),
+                            ScUtil.NotificationType.SIMPLE);
+
+                    callPaginate();
+                    reset${className}Form();
+                    changeTop();
+                }
+                else {
+                    ScUtil.notification("Error Actualizando ${className}",
+                            "Se produjo un error al actualizar ${className}",
+                            Duration.seconds(Double.parseDouble(Config.getValue("default.timeout_errormsg"))),
+                            ScUtil.NotificationType.ERROR);
+                }
+            }
+        }
+        else {
+            ScUtil.notification("Error creando ${className}",
+                    validationErrors,
+                    Duration.seconds(Double.parseDouble(Config.getValue("default.timeout_errormsg"))),
+                    ScUtil.NotificationType.ERROR);
+        }
+    }
+
+    // BEGIN Paginacion
+    @FXML
+    void paginaActualAction(ActionEvent event) {
+        paginador.onCurrentPage(paginaActual.getValue());
+    }
+
+    @FXML
+    void ${classNameInstance}RegistrosPaginaAction(ActionEvent event) {
+        paginador.onPageSize(${classNameInstance}RegistrosPagina.getValue());
+        paginaActual.setItems(paginador.getObservablePagesList());
+        paginaActual.getSelectionModel().select(paginador.getCurrentSelectedPage());
+    }
+
+    @FXML
+    void paginaActualDerAction(ActionEvent event) {
+        paginador.onPageRight();
+        paginaActual.getSelectionModel().select(paginador.getCurrentSelectedPage());
+    }
+
+    @FXML
+    void paginaActualIzqAction(ActionEvent event) {
+        paginador.onPageLeft();
+        paginaActual.getSelectionModel().select(paginador.getCurrentSelectedPage());
+    }
+    // END Paginacion
+
+    @FXML
+    void ${classNameInstance}TableSort(Event event) {
+        LOGGER.info("SOS " + ${classNameInstance}Table.getSortOrder().size());
+        ${classNameInstance}Table.setSortPolicy(param -> true);
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+        LOGGER.info("Initializing ${className} UI ");
+
+        //BEGIN search
+        buscar.textProperty().addListener((observable, oldValue, newValue) -> {
+
+            if (newValue.length() >= 3) {
+                paginador.paginate("nombre", buscar.getText());
+            }
+
+            if (newValue.length() == 0) {
+                callPaginate();
+            }
+
+        });
+
+        buscar.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                buscar.setText("");
+            }
+        });
+        //END search
+
+#foreach( $field in $fields )
+    #if (${field.uiComponent} == "CheckListView"   || ${field.uiComponent} == "ComboBox"))
+
+        //BEGIN CheckListView frm${field.upperCaseFirst}
+        GenericServiceImpl<${field.upperCaseFirst}> ${field.lowerCaseFirst}Service = new GenericServiceImpl<>(${field.upperCaseFirst}.class, HibernateUtils.getSessionFactory());
+
+        List<${field.upperCaseFirst}> ${field.lowerCaseFirst}s = ${field.lowerCaseFirst}Service.getAll();
+
+        frm${field.upperCaseFirst}.getItems().setAll(${field.lowerCaseFirst}s);
+
+        frm${field.upperCaseFirst}.getCheckModel().getCheckedItems().addListener((ListChangeListener<${field.upperCaseFirst}>) c -> {
+            for (${field.upperCaseFirst} o:frm${field.upperCaseFirst}.getCheckModel().getCheckedItems()) {
+                System.out.println(o);
+            }
+        });
+        //BEGIN CheckListView frm${field.upperCaseFirst}
+    #end
+#end
+
+        //BEGIN Context Menu
+        contextMenu.getItems().addAll(editarMenu, crearFacturaMenu, crearProformaMenu, registrarPagoMenu);
+
+        ${classNameInstance}Table.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            if (event.getButton() == MouseButton.SECONDARY) {
+                contextMenu.show(${classNameInstance}Table, event.getScreenX(), event.getScreenY());
+            } else {
+                contextMenu.hide();
+            }
+        });
+
+        editarMenu.setOnAction(event -> {
+            ${classNameInstance}Bcb.selectedCrumbProperty().set(editar);
+            ${className} ${classNameInstance} = ${classNameInstance}Service.get(${className}.class,
+                    ${classNameInstance}Table.getSelectionModel().getSelectedItem().getId());
+
+            LOGGER.info("Object to edit " + ${classNameInstance});
+            editActive = true;
+            load${className}Form(${classNameInstance});
+            changeTop();
+        });
+        //END Context Menu
+
+        //BEGIN Breadcrumb
+        ${classNameInstance}Bcb.selectedCrumbProperty().set(root);
+        ${classNameInstance}Bcb.setAutoNavigationEnabled(false);
+        ${classNameInstance}Bcb.setOnCrumbAction(event -> System.out.println(event.getSelectedCrumb().getValue()));
+        root.getChildren().addAll(crear, editar);
+        //END Breadcrumb
+
+        //BEGIN DB
+        ${classNameInstance}Service = new GenericServiceImpl<>(${className}.class, HibernateUtils.getSessionFactory());
+        //END DB
+
+        //BEGIN Table Column definition
+#foreach( $field in $fields )
+        ${field.name}.setCellValueFactory(new PropertyValueFactory<>("${field.name}"));
+#end
+        //END Table Column definition
+
+        // BEGIN Paginacion
+        paginador = new Pager<>(${className}.class, HibernateUtils.getSessionFactory(), "nombre");
+        ${classNameInstance}RegistrosPagina.getItems().addAll(paginador.getRecordsPerPageList());
+        ${classNameInstance}RegistrosPagina.getSelectionModel().select(paginador.getCurrentPageSizeIndex());
+        paginaActual.setItems(paginador.getObservablePagesList());
+        paginaActual.getSelectionModel().select(paginador.getCurrentSelectedPage());
+        paginador.paginate();
+        ${classNameInstance}Table.setItems(paginador.getTableSortedData());
+        paginaActual.getSelectionModel().select(paginador.getCurrentSelectedPage());
+        // END Paginacion
+
+        //BEGIN Validations
+#foreach( $field in $fields )
+    #if($field.validate)
+        ${field.name}.setCellValueFactory(new PropertyValueFactory<>("${field.name}"));
+        #if($field.validationMessage)
+        validation.registerValidator(frm${field.upperCaseFirst}, Validator.createEmptyValidator("${field.validationMessage}"));
+        #else
+        validation.registerValidator(frm${field.upperCaseFirst}, Validator.createEmptyValidator("Default error messasge"));
+        #end
+
+    #end
+#end
+         //@TODO colocar los formaters para los campos en caso de ser necesario
+        /*
+        frmTelefono.setTextFormatter(FxUtil.
+                TextFormatter(Config.getValue("format.phone"),Config.getValue("default.phone")));
+
+        frmCiRuc.setTextFormatter(FxUtil.
+                TextFormatter(Config.getValue("format.ci_ruc"),Config.getValue("default.ruc_ci")));
+
+        frmEmail.setTextFormatter(FxUtil.
+                TextFormatter(Config.getValue("format.email"), Config.getValue("default.email")));
+
+        */
+        //END Validations
+    }
+
+    private void changeTop() {
+        ObservableList<Node> childs = this.${classNameInstance}StackPane.getChildren();
+
+        if (childs.size() > 1) {
+            Node topNode = childs.get(childs.size() - 1);
+            // This node will be brought to the front
+            Node newTopNode = childs.get(childs.size() - 2);
+            topNode.setVisible(false);
+            topNode.toBack();
+            newTopNode.setVisible(true);
+        }
+    }
+
+    private boolean validateForm() {
+
+        Boolean valida = false;
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        javax.validation.Validator validator = factory.getValidator();
+        Set<ConstraintViolation<${className}>> violations = null;
+
+        if(editActive){
+            violations = validator.validate(${classNameInstance}, ${className}EditCheck.class);
+        }
+        else {
+            violations = validator.validate(${classNameInstance}, ${className}InsertCheck.class);
+        }
+
+        if (violations.isEmpty()) {
+            LOGGER.info("Valid object: " + ${classNameInstance});
+            valida = true;
+        }
+
+        else {
+            validationErrors = "";
+            for (ConstraintViolation<${className}> violation : violations) {
+                validationErrors += violation.getMessage() + "\n";
+            }
+            LOGGER.info(validationErrors);
+        }
+
+        return valida;
+    }
+
+    private void reset${className}Form() {
+
+#foreach( $field in $fields )
+    #if(${field.uiComponent} == "CheckListView")
+
+        GenericServiceImpl<${field.upperCaseFirst}> ${field.lowerCaseFirst}Service = new GenericServiceImpl<>(${field.upperCaseFirst}.class, HibernateUtils.getSessionFactory());
+
+        List<${field.upperCaseFirst}> ${field.lowerCaseFirst}s = ${field.lowerCaseFirst}Service.getAll();
+
+        for (${field.upperCaseFirst} i: ${field.lowerCaseFirst}s) {
+            frm${field.upperCaseFirst}.getCheckModel().clearCheck((Integer) i.getId());
+        }
+
+    #else
+        frm${field.upperCaseFirst}.setText("");
+    #end
+#end
+        //@TODO se puede colocar los valores desde config
+        /*
+        frmEmail.setText(Config.getValue("default.email"));
+        frmTelefono.setText(Config.getValue("default.phone"));
+        frmCiRuc.setText(Config.getValue("default.ruc_ci"));
+        */
+    }
+
+    private void load${className}Form(${className} ${classNameInstance}) {
+#foreach( $field in $fields )
+
+#if((${field.dataType} == "Integer" || ${field.dataType} == "int" || ${field.dataType} == "BigDecimal")  && ${field.uiComponent} == "CheckListView" )
+        for (${field.upperCaseFirst} i: ${classNameInstance}.get${field.upperCaseFirst}s()) {
+            frm${field.upperCaseFirst}.getCheckModel().check((Integer) i.getId());
+        }
+#else
+        frm${field.upperCaseFirst}.setText(String.valueOf(${classNameInstance}.get${field.upperCaseFirst}()));
+#end
+#end
+    }
+
+    private void callPaginate() {
+        paginador.calculatePages();
+        paginador.paginate();
+        ${classNameInstance}Table.setItems(paginador.getTableSortedData());
+        paginaActual.getSelectionModel().select(paginador.getCurrentSelectedPage());
+    }
+
+}
