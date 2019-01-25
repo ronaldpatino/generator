@@ -1,0 +1,230 @@
+package com.sigecloud.model.dao;
+
+import com.sigecloud.model.${className};
+import com.sigecloud.model.pojo.${className}Obj;
+import org.javalite.activejdbc.Base;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ${className}Dao {
+
+    public ${className}Obj get(int id){
+
+        ${className}Obj ${classNameInstance}Obj = null;
+        try {
+            baseOpen();
+            ${className} ${classNameInstance} = ${className}.findById(id);
+            ${classNameInstance}Obj = new ${className}Obj();
+            #foreach( $field in $fields )
+            ${classNameInstance}Obj.set${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}(${classNameInstance}Obj.get${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}());
+            #end
+        }
+
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        finally {
+            Base.close();
+        }
+        return ${classNameInstance}Obj;
+    }
+
+    public Boolean create(${className}Obj ${classNameInstance}Obj){
+
+        Boolean creado = Boolean.FALSE;
+
+        try {
+            baseOpen();
+            ${className} ${classNameInstance} = new ${className}();
+
+            #foreach( $field in $fields )
+            ${classNameInstance}.set${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}(${classNameInstance}Obj.get${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}());
+            #end
+
+            if (${classNameInstance}.saveIt()){
+                creado = Boolean.TRUE;
+            }
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        finally {
+            baseClose();
+        }
+
+        return creado;
+    }
+
+
+    public Boolean update(${className}Obj ${classNameInstance}Obj){
+
+        Boolean updated = Boolean.FALSE;
+
+        try {
+            baseOpen();
+            ${className} ${classNameInstance} = ${className}.findById(${classNameInstance}Obj.getId());
+
+
+            #foreach( $field in $fields )
+            ${classNameInstance}.set${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}(${classNameInstance}Obj.get${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}());
+            #end
+
+            if (${classNameInstance}.saveIt()){
+                updated = Boolean.TRUE;
+            }
+
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        finally {
+            baseClose();
+        }
+
+        return updated;
+    }
+
+    public List<${className}> list(int offset, int limit){
+
+        List<${className}> ${classNameInstance}s = null;
+
+        try {
+            baseOpen();
+
+            ${classNameInstance}s = ${className}.findAll()
+                    .offset(offset)
+                    .limit(limit)
+                    .orderBy("${sortBy} asc");
+            ${classNameInstance}s.size();
+        }
+
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        finally {
+            baseClose();
+        }
+
+        return ${classNameInstance}s;
+
+    }
+
+    public List<${className}> list(int offset, int limit, String sortColumnIndex, boolean sortDescending){
+
+        List<${className}> ${classNameInstance}s = null;
+        List<${className}Obj> cos = new ArrayList<>();
+
+        try {
+            baseOpen();
+
+            if(sortDescending) {
+                ${classNameInstance}s = ${className}.findAll()
+                        .offset(offset)
+                        .limit(limit)
+                        .orderBy(sortColumnIndex + " desc");
+            }
+            else {
+                ${classNameInstance}s = ${className}.findAll()
+                        .offset(offset)
+                        .limit(limit)
+                        .orderBy(sortColumnIndex + " asc");
+            }
+
+            load${className}s(${classNameInstance}s, cos);
+
+        }
+
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        finally {
+            baseClose();
+        }
+
+        return ${classNameInstance}s;
+
+    }
+
+    public List<${className}> find(String term,
+                                 int offset,
+                                 int limit,
+                                 String sortColumnIndex,
+                                 boolean sortDescending){
+
+        List<${className}> ${classNameInstance}s = null;
+        term = "%" + term + "%";
+
+        try {
+            baseOpen();
+
+            ${classNameInstance}s = ${className}
+                    .where("${findBy} like ?", term)
+                    .offset(offset)
+                    .limit(limit)
+                    .orderBy("${sortBy} asc");
+            ${classNameInstance}s.size();
+
+
+        }
+
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        finally {
+            Base.close();
+        }
+
+        return ${classNameInstance}s;
+
+    }
+    public int count(){
+
+        int numero${className}s = 0;
+
+        try {
+            baseOpen();
+            numero${className}s = ${className}.findAll().size();
+        }
+
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        finally {
+            baseClose();
+        }
+
+        return numero${className}s;
+
+
+    }
+
+    private void load${className}s(List<${className}> ${classNameInstance}s, List<${className}Obj> cos) {
+        for (${className} cs: ${classNameInstance}s ){
+
+            ${className}Obj ${classNameInstance} = new ${className}Obj();
+
+
+        //@TODO Cast the variables to appropiate object
+        #foreach( $field in $fields )
+            ${classNameInstance}.set${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}(cs.get${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}());
+        #end
+            cos.add(${classNameInstance});
+        }
+    }
+
+    private void baseOpen(){
+        Base.open("com.mysql.jdbc.Driver",
+                "jdbc:mysql://localhost/jf?autoReconnect=true&useSSL=false",
+                "root",
+                "acdc1976");
+    }
+
+    private void baseClose() {
+        Base.close();
+    }
+}

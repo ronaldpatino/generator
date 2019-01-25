@@ -1,0 +1,477 @@
+package com.sigecloud.controller;
+
+import com.jfoenix.controls.JFXButton;
+import com.sigecloud.model.${className};
+import com.sigecloud.model.dao.${className}Dao;
+import com.sigecloud.model.pojo.${className}Obj;
+import com.sigecloud.util.ScUtil;
+import com.sigecloud.util.validators.interfaces.${className}EditCheck;
+import com.sigecloud.util.validators.interfaces.${className}InsertCheck;
+import com.sun.javafx.scene.control.skin.TableColumnHeader;
+import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
+import org.controlsfx.control.BreadCrumbBar;
+import org.controlsfx.control.Notifications;
+import org.javalite.activejdbc.DB;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.net.URL;
+import java.util.Comparator;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Set;
+
+public class ${className}Pane implements Initializable{
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(${className}Pane.class);
+    // Breadcrum
+    private TreeItem<String> root = new TreeItem<>("${className}s");
+    private TreeItem<String> crear = new TreeItem<>("Crear");
+    private TreeItem<String> editar = new TreeItem<>("Editar");
+
+    //Menu
+    ContextMenu contextMenu = new ContextMenu();
+    MenuItem editarMenu = new MenuItem("Editar");
+    MenuItem crearFacturaMenu = new MenuItem("Crear Factura");
+    MenuItem crearProformaMenu = new MenuItem("Crear Proforma");
+    MenuItem registrarPagoMenu = new MenuItem("Registrar Pago");
+
+
+    //Paginacion
+    private ${className}Obj ${objectName};
+    private ${className}Dao ${daoName};
+    private ObservableList<${className}Obj> ${classNameInstance}ObservableList = FXCollections.observableArrayList();
+    private ObservableList<Integer> paginasObservableList = FXCollections.observableArrayList();
+    private int totalPages;
+    private int currentPageSizeIndex = 0;
+    private int currentPageSize = 5;
+    private int currentSelectedPage = 0;
+    private Integer[] arrayRegistrosPagina = {5, 10, 25, 50, 100};
+    private Integer[] arrayTotalPagina;
+    private int startIndex = 0;
+    private int endIndex = 5;
+    private String sortColumn = "nombre";
+    private String validationErrors = "";
+    private boolean sortDescending = false;
+    private SortedList<${className}Obj> sortedData;
+    private Boolean searchActive = false;
+    private Boolean editActive = false;
+    private int idEdit = 0;
+
+#foreach( $field in $fields )
+    @FXML
+    private TextField frm${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)};
+
+#end
+
+#foreach( $field in $fields )
+@FXML
+private TableColumn<${className}Obj, ${field.tipo}> ${field.nombre};
+#end
+
+    // Common fields   
+    @FXML
+    private AnchorPane ${classNameInstance}Pane;
+
+    @FXML
+    private StackPane ${classNameInstance}StackPane;
+
+    @FXML
+    private BorderPane ${classNameInstance}ListPane;
+
+    @FXML
+    private GridPane crearPane;
+
+    @FXML
+    private JFXButton cancelarBtn;
+
+    @FXML
+    private JFXButton guardarBtn;
+
+    @FXML
+    private BorderPane listPane;
+
+    @FXML
+    private JFXButton crearBtn;
+
+    @FXML
+    private TextField buscar;
+
+    @FXML
+    private TableView<${className}Obj> ${classNameInstance}Table;
+
+    @FXML
+    private ComboBox<Integer> ${classNameInstance}RegistrosPagina;
+
+    @FXML
+    private ComboBox<Integer> paginaActual;
+
+    @FXML
+    private JFXButton paginaActualIzq;
+
+    @FXML
+    private JFXButton paginaActualDer;
+
+    @FXML
+    private BreadCrumbBar<String> ${classNameInstance}Bcb;
+
+
+    @FXML
+    void cancelarBtnAction(ActionEvent event) {
+        ${classNameInstance}Bcb.selectedCrumbProperty().set(root);
+        editActive = false;
+        changeTop();
+    }
+
+    @FXML
+    void ${classNameInstance}RegistrosPaginaAction(ActionEvent event) {
+        currentPageSize = ${classNameInstance}RegistrosPagina.getValue();
+        calculatePages();
+        paginate();
+    }
+
+    @FXML
+    void crearBtnAction(ActionEvent event) {
+        ${classNameInstance}Bcb.selectedCrumbProperty().set(crear);
+        reset${className}Form();
+        changeTop();
+    }
+
+    @FXML
+    void guardarBtnAction(ActionEvent event) {
+
+        ${objectName} = new ${className}Obj();
+
+        if(editActive) {
+            ${objectName}.setId(Integer.valueOf(frmId.getText()));
+        }
+#foreach( $field in $fields )
+    ${objectName}.set${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}(frm${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}.getText());
+#end
+
+
+        if (validateClientForm()){
+            if (!editActive) {
+                if (${daoName}.create(${objectName})) {
+                    reset${className}Form();
+                    calculatePages();
+                    paginate();
+                    changeTop();
+                    ScUtil.notification("${className} Creado",
+                            " ${className} Creado Correctamente",
+                            Duration.seconds(5),
+                            ScUtil.NotificationType.SIMPLE);
+
+
+                }
+                else {
+                    ScUtil.notification("Error creando ${className}",
+                            "Se produjo un error al crear ${className}",
+                            Duration.seconds(20),
+                            ScUtil.NotificationType.ERROR);
+                }
+           }
+           else {
+
+                LOGGER.info("Updateing edit " + ${objectName});
+                if (${daoName}.update(${objectName})) {
+                    editActive = false;
+                    ScUtil.notification("${className} Actualizado",
+                            "${className} Actualizado Corectamente",
+                            Duration.seconds(5),
+                            ScUtil.NotificationType.SIMPLE);
+
+                    reset${className}Form();
+                    calculatePages();
+                    paginate();
+                    changeTop();
+                }
+                else {
+                    ScUtil.notification("Error Actualizando ${className}",
+                            "Se produjo un error al actualizar ${className}",
+                            Duration.seconds(20),
+                            ScUtil.NotificationType.ERROR);
+
+                }
+            }
+
+        }
+        else {
+            ScUtil.notification("Error creando ${className}",
+                    validationErrors,
+                    Duration.seconds(20),
+                    ScUtil.NotificationType.ERROR);
+        }
+    }
+
+    @FXML
+    void paginaActualAction(ActionEvent event) {
+
+        if(paginaActual.getValue()!= null){
+            currentSelectedPage = paginaActual.getValue() -1;
+        }
+        else {
+            currentSelectedPage = 0;
+        }
+
+        paginate();
+
+    }
+
+    @FXML
+    void paginaActualDerAction(ActionEvent event) {
+        if(currentSelectedPage < totalPages-1){
+            currentSelectedPage+=1;
+            paginate();
+        }
+    }
+
+    @FXML
+    void paginaActualIzqAction(ActionEvent event) {
+        if(currentSelectedPage > 0){
+            currentSelectedPage-=1;
+            paginate();
+        }
+    }
+
+    @FXML
+    void ${classNameInstance}TableSort(Event event) {
+        LOGGER.info("SOS " + ${classNameInstance}Table.getSortOrder().size());
+        ${classNameInstance}Table.setSortPolicy(param -> true);
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+        LOGGER.info("Initializing ${className} UI ");
+
+        //Search
+        buscar.textProperty().addListener((observable, oldValue, newValue) -> {
+
+            if (newValue.length() >= 3){
+                searchActive = true;
+                paginasObservableList.clear();
+                totalPages=0;
+                paginate();
+            }
+
+            if(newValue.length() == 0){
+                searchActive = false;
+                calculatePages();
+                paginate();
+            }
+
+        });
+        buscar.setOnKeyReleased(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode() == KeyCode.ESCAPE) { buscar.setText(""); }
+            }
+        });
+
+
+        //Context Menu
+
+        contextMenu.getItems().addAll(editarMenu, crearFacturaMenu, crearProformaMenu, registrarPagoMenu);
+        ${classNameInstance}Table.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if(event.getButton() == MouseButton.SECONDARY) {
+                    contextMenu.show(${classNameInstance}Table, event.getScreenX(), event.getScreenY());
+                }
+                else {
+                    contextMenu.hide();
+                }
+            }
+        });
+
+        editarMenu.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                ${classNameInstance}Bcb.selectedCrumbProperty().set(editar);
+                ${objectName} = ${daoName}.get(${classNameInstance}Table.getSelectionModel().getSelectedItem().getId());
+                LOGGER.info("Object to edit " + ${objectName});
+                editActive = true;
+                load${className}Form(${objectName});
+                changeTop();
+            }
+        });
+
+        //Breadcrumb
+        ${classNameInstance}Bcb.selectedCrumbProperty().set(root);
+        ${classNameInstance}Bcb.setAutoNavigationEnabled(false);
+        ${classNameInstance}Bcb.setOnCrumbAction(event -> System.out.println(event.getSelectedCrumb().getValue()));
+        root.getChildren().addAll(crear, editar);
+
+        //DB
+        ${daoName} = new ${className}Dao();    
+        #foreach( $field in $fields )
+        ${field.nombre}.setCellValueFactory(new PropertyValueFactory<${className}Obj, ${field.tipo}>("${field.nombre}"));
+        #end
+
+
+        //Pagination panel
+
+        ${classNameInstance}RegistrosPagina.getItems().addAll(arrayRegistrosPagina);
+        ${classNameInstance}RegistrosPagina.getSelectionModel().select(currentPageSizeIndex);
+
+        totalPages = (int) Math.ceil((double) ${daoName}.count() / ${classNameInstance}RegistrosPagina.getValue());
+        paginasObservableList.clear();
+        for(int i = 0; i < totalPages; i++) { paginasObservableList.add(i+1);}
+        paginaActual.setItems(paginasObservableList);
+        paginaActual.getSelectionModel().select(currentSelectedPage);
+
+        paginate();
+
+
+    }
+
+    private void changeTop() {
+        ObservableList<Node> childs = this.${classNameInstance}StackPane.getChildren();
+
+        if (childs.size() > 1) {
+            Node topNode = childs.get(childs.size()-1);
+            // This node will be brought to the front
+            Node newTopNode = childs.get(childs.size()-2);
+            topNode.setVisible(false);
+            topNode.toBack();
+            newTopNode.setVisible(true);
+        }
+    }
+
+    private ObservableList<${className}Obj> get${className}List() {
+
+        List<${className}> ${classNameInstance}s = ${daoName}.list(startIndex, endIndex, sortColumn, sortDescending);
+        ${classNameInstance}ObservableList.clear();
+        for (${className} c : ${classNameInstance}s) {
+            ${className}Obj ${objectName} = new ${className}Obj(#foreach( $field in $fields )c.get${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}(),#end);
+            ${classNameInstance}ObservableList.add(${objectName});
+        }
+
+        return ${classNameInstance}ObservableList;
+    }
+
+    private ObservableList<${className}Obj> get${className}List(String term) {
+
+
+        List<${className}> ${classNameInstance}s = ${daoName}.find(buscar.getText(), startIndex, endIndex, sortColumn, sortDescending);
+        ${classNameInstance}ObservableList.clear();
+        for (${className} c : ${classNameInstance}s) {
+            ${className}Obj ${objectName} = new ${className}Obj(#foreach( $field in $fields )c.get${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}(),#end);
+            ${classNameInstance}ObservableList.add(${objectName});
+        }
+
+        return ${classNameInstance}ObservableList;
+    }
+
+    private void calculatePages(){
+
+        totalPages = (int) Math.ceil((double) ${daoName}.count() / ${classNameInstance}RegistrosPagina.getValue());
+
+        if (paginasObservableList.size() >= 0) {
+            paginasObservableList.clear();
+            for(int i = 0; i < totalPages; i++) { paginasObservableList.add(i+1);}
+            paginaActual.setItems(paginasObservableList);
+            paginaActual.getSelectionModel().select(currentSelectedPage);
+        }
+
+    }
+
+    private void paginate() {
+
+
+        startIndex = currentSelectedPage * currentPageSize;
+        endIndex = currentPageSize;
+
+        if (endIndex > ${daoName}.count()) {
+            endIndex = ${daoName}.count();
+        }
+
+        ObservableList<${className}Obj> clientList= get${className}List();
+        sortedData = new SortedList<>(clientList);
+        ${classNameInstance}Table.setItems(sortedData);
+        sortedData.comparatorProperty().bind(${classNameInstance}Table.comparatorProperty());
+        paginaActual.getSelectionModel().select(currentSelectedPage);
+
+        if (searchActive){
+            clientList = get${className}List(buscar.getText());
+        }
+        else{
+            get${className}List();
+        }        
+
+    }
+
+    private boolean validateClientForm(){
+
+        Boolean valida = Boolean.FALSE;
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<${className}Obj>> violations = null;
+        if(editActive){
+            violations = validator.validate(${objectName}, ${className}EditCheck.class);
+        }
+        else {
+            violations = validator.validate(${objectName}, ${className}InsertCheck.class);
+        }
+
+        if (violations.isEmpty()) {
+            LOGGER.info("Valid object: " + ${objectName});
+            valida = Boolean.TRUE;
+        }
+
+        else {
+            validationErrors = "";
+            for (ConstraintViolation<${className}Obj> violation : violations) {
+                validationErrors += violation.getMessage() + "\n";
+            }
+            LOGGER.info(validationErrors);
+        }
+        return valida;
+    }
+
+    private void reset${className}Form(){
+    #foreach( $field in $fields )
+        frm${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}.setText(null);
+    #end
+    }
+
+    private void load${className}Form(${className}Obj ${objectName}){
+
+    //@TODO Change Id to frmId.setText(String.valueOf(${objectName}.getId()));
+    #foreach( $field in $fields )
+        frm${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}.setText(${objectName}.get${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}());
+    #end
+    }
+}

@@ -1,0 +1,6 @@
+package ${javaPackage}
+
+import com.airhacks.afterburner.views.FXMLView;
+
+public class ${className}View extends FXMLView {
+}

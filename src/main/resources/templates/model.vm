@@ -1,0 +1,19 @@
+package com.sigecloud.model;
+
+import org.javalite.activejdbc.Model;
+
+public class ${className} extends Model {
+
+
+//@TODO delete get Id
+#foreach( $field in $fields )
+    public void set${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}(${field.tipo} ${field.nombre}){
+        set("${field.nombre}", ${field.nombre});
+    }
+
+    public ${field.tipo} get${field.nombre.substring(0,1).toUpperCase()}${field.nombre.substring(1)}(){
+        return get${field.tipo}("${field.nombre}");
+    }
+#end
+
+}

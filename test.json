@@ -1,0 +1,34 @@
+{
+  "javaPackage": "com.sigecloud.app.importar",
+  "className":"Importar",
+  "classNameInstance": "importar",
+  "objectName":"importarObject",
+  "sortByField":"nombre",
+  "findByField":"nombre",
+  "fields": [
+    {
+      "name": "id",
+      "dataType": "int",
+      "uiComponent": "TextField",
+      "validationMessage": null,
+      "label": "ID",
+      "min": null,
+      "max": null,
+      "validate": true,
+      "visible": true,
+      "editable": false
+    },
+    {
+      "name": "nombre",
+      "dataType": "String",
+      "uiComponent": "TextField",
+      "validationMessage": "Debe ingresar un nombre",
+      "label": "NOMBRE",
+      "min": null,
+      "max": null,
+      "validate": true,
+      "visible": true,
+      "editable": true
+    }
+   ]
+}

@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import org.controlsfx.control.BreadCrumbBar?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<AnchorPane fx:id="${classNameInstance}Pane" prefHeight="435.0" prefWidth="530.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sigecloud.app.${classNameInstance}.${className}Presenter">
+    <children>
+        <BorderPane prefHeight="435.0" prefWidth="530.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <center>
+                <StackPane fx:id="${classNameInstance}StackPane">
+                    <children>
+                        <BorderPane fx:id="${classNameInstance}ListPane" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #000;">
+                            <center>
+                                <GridPane fx:id="crearPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" style="-fx-background-color: #FFFFFF;" BorderPane.alignment="CENTER">
+                                    <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity" prefWidth="100.0" />
+                                    <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" />
+                                    <ColumnConstraints hgrow="SOMETIMES" />
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity" prefWidth="100.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                    #foreach( $field in $fields )
+                                    #if($field.tipoComponente =="CheckListView")
+                                    <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="150.0" vgrow="SOMETIMES" />
+                                    #else
+                                    <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                                    #end
+                                    #end
+                                    <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                                    <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                                    <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                                    </rowConstraints>
+                                    <children>
+
+
+#foreach( $field in $fields )
+#set( $rowIndex = $velocityCount - 1 )
+#if($field.visible)
+                                        <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="30.0" prefWidth="200.0" text="${field.label}" GridPane.columnIndex="1" GridPane.rowIndex="${rowIndex}">
+                                            <padding>
+                                                <Insets right="10.0" />
+                                            </padding>
+                                        </Label>
+#end
+#end
+#foreach( $field in $fields )
+#set( $rowIndex = $velocityCount - 1 )
+#if($field.visible)
+#set( $opacity = "0.0" )
+#else
+#set( $opacity = "1.0" )
+#end
+
+
+
+#if($field.visible)
+    #set( $opacity = "1.0" )
+#else
+    #set( $opacity = "0.0" )
+#end
+
+#if($field.editable)
+    #set( $editable = "true" )
+#else
+    #set( $editable = "false" )
+#end
+
+
+#if($field.tipoComponente =="TextField")
+    <TextField fx:id="frm${field.upperCaseFirst}"
+               GridPane.columnIndex="2"
+               GridPane.rowIndex="${rowIndex}"
+               opacity="${opacity}"
+               editable="${editable}"/>
+#elseif($field.tipoComponente =="CheckListView")
+    <CheckListView fx:id="frm${field.upperCaseFirst}"
+                   GridPane.columnIndex="2"
+                   GridPane.rowIndex="${rowIndex}"
+                   opacity="${opacity}"
+                   editable="${editable}">
+        <GridPane.margin><Insets top="5.0" /></GridPane.margin>
+    </CheckListView>
+#elseif($field.tipoComponente =="ComboBox")
+    <ComboBox fx:id="frm${field.upperCaseFirst}"
+            prefWidth="150.0"
+            GridPane.columnIndex="2"
+            GridPane.rowIndex="${rowIndex}"
+            opacity="${opacity}"
+            editable="${editable}">
+    </ComboBox>
+#elseif($field.tipoComponente =="TextArea")
+    <TextArea fx:id="frm${field.upperCaseFirst}"
+            prefHeight="200.0"
+            prefWidth="200.0"
+            GridPane.columnIndex="2"
+            GridPane.rowIndex="${rowIndex}"
+            GridPane.vgrow="SOMETIMES"
+            opacity="${opacity}"
+            editable="${editable}">
+        <GridPane.margin><Insets top="10.0" /></GridPane.margin>
+    </TextArea>
+#end
+#end
+                                        #set( $botonesRow = $fields.size() +1 )
+                                        <JFXButton fx:id="cancelarBtn" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" onAction="#cancelarBtnAction" prefWidth="100.0" style="-fx-background-color: #808080;" text="Cancelar" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="${botonesRow}">
+                                            <graphic>
+                                                <FontIcon iconColor="WHITE" iconLiteral="fas-times-circle" />
+                                            </graphic>
+                                            <GridPane.margin>
+                                                <Insets right="5.0" />
+                                            </GridPane.margin></JFXButton>
+                                        <JFXButton fx:id="guardarBtn" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" onAction="#guardarBtnAction" prefWidth="100.0" style="-fx-background-color: #33b753;" text="Guardar" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="${botonesRow}">
+                                            <graphic>
+                                                <FontIcon iconColor="WHITE" iconLiteral="fas-save" />
+                                            </graphic></JFXButton>
+
+                                    </children>
+                                </GridPane>
+                            </center>
+                        </BorderPane>
+                        <BorderPane fx:id="listPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-background-color: #FFFFFF;">
+                            <top>
+                                <GridPane BorderPane.alignment="CENTER">
+                                    <columnConstraints>
+#foreach( $field in $fields )
+#if($field.visible)
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+#end
+#end
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    </rowConstraints>
+                                    <children>
+                                        <JFXButton fx:id="crearBtn" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#crearBtnAction" style="-fx-background-color: #286090;" text="Crear" textFill="WHITE" GridPane.columnIndex="3">
+                                            <graphic>
+                                                <FontIcon iconColor="WHITE" iconLiteral="fas-plus-circle" />
+                                            </graphic>
+                                        </JFXButton>
+                                        <TextField fx:id="buscar" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"  promptText="Buscar" GridPane.columnIndex="2">
+                                            <GridPane.margin>
+                                                <Insets right="10.0" />
+                                            </GridPane.margin>
+                                        </TextField>
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="10.0" right="10.0" />
+                                    </padding>
+                                    <BorderPane.margin>
+                                        <Insets bottom="10.0" top="10.0" />
+                                    </BorderPane.margin>
+                                </GridPane>
+                            </top>
+                            <center>
+                                <TableView fx:id="${classNameInstance}Table" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" onSort="#${classNameInstance}TableSort" prefHeight="400.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                                    <columns>
+#foreach( $field in $fields )
+#if($field.visible)
+                                        <TableColumn fx:id="${field.name}" prefWidth="75.0" text="${field.label}" />
+#else
+                                        <TableColumn fx:id="${field.name}" prefWidth="75.0" text="${field.label}" visible="false" />
+#end
+#end
+                                    </columns>
+                                    <columnResizePolicy>
+                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                    </columnResizePolicy>
+                                </TableView>
+                            </center>
+                            <bottom>
+                                <GridPane BorderPane.alignment="CENTER">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                        </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    </rowConstraints>
+                                    <children>
+                                        <HBox alignment="CENTER_RIGHT" spacing="5.0" GridPane.columnIndex="1">
+                                            <children>
+                                                <JFXButton fx:id="paginaActualIzq" contentDisplay="CENTER" onAction="#paginaActualIzqAction" style="-fx-background-color: #286090;" textFill="WHITE">
+                                                    <graphic>
+                                                        <FontIcon iconColor="WHITE" iconLiteral="fas-arrow-alt-circle-left" />
+                                                    </graphic></JFXButton>
+                                                <ComboBox fx:id="paginaActual" maxWidth="-Infinity" minWidth="-Infinity" onAction="#paginaActualAction" prefWidth="100.0" />
+                                                <JFXButton fx:id="paginaActualDer" contentDisplay="CENTER" onAction="#paginaActualDerAction" style="-fx-background-color: #286090;" textFill="WHITE">
+                                                    <graphic>
+                                                        <FontIcon iconColor="WHITE" iconLiteral="fas-arrow-alt-circle-right" />
+                                                    </graphic></JFXButton>
+                                            </children>
+                                        </HBox>
+                                        <ComboBox fx:id="${classNameInstance}RegistrosPagina" maxWidth="-Infinity" minWidth="-Infinity" onAction="#${classNameInstance}RegistrosPaginaAction" prefWidth="100.0" />
+                                    </children>
+                                </GridPane>
+                            </bottom>
+                        </BorderPane>
+                    </children>
+                    <padding>
+                        <Insets left="10.0" right="10.0" />
+                    </padding>
+                </StackPane>
+            </center>
+            <top>
+                <HBox prefHeight="20.0" BorderPane.alignment="CENTER_LEFT">
+                    <children>
+                        <BreadCrumbBar fx:id="${classNameInstance}Bcb" />
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </padding>
+                </HBox>
+            </top>
+        </BorderPane>
+    </children>
+</AnchorPane>
+
