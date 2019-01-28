@@ -8,32 +8,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Properties;
 
 public class CodeGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeGenerator.class);
-    private static String SAVE_PATH = System.getProperty("user.dir") + File.separator + "generated" + File.separator;
+
     private static String JAVA_PACKAGE_PATH;
     private static String VALIDATOR_JAVA_PACKAGE_PATH;
     private static String MAIN_JAVA_PACKAGE_PATH;
     private static String DASHBOARD_JAVA_PACKAGE_PATH;
 
-    private static String CSS_TEMPLATE_FILE = "templates/css.vm";
-    private static String FXML_TEMPLATE_FILE = "templates/fxml.vm";
-    private static String PRESENTER_TEMPLATE_FILE = "templates/presenter.vm";
-    private static String VIEW_TEMPLATE_FILE = "templates/view.vm";
-    private static String SERVICE_TEMPLATE_FILE = "templates/service.vm";
-    private static String EDIT_CHECK_TEMPLATE_FILE = "templates/editCheck.vm";
-    private static String INSERT_CHECK_TEMPLATE_FILE = "templates/insertCheck.vm";
-    private static String DASHBOARD_TEMPLATE_FILE = "templates/dashboard.vm";
-    private static String MAIN_TEMPLATE_FILE = "templates/main.vm";
-
     private VelocityEngine velocityEngine;
     private VelocityContext context;
+    private VelocityContext dashboardContex;
     private Template cssTemplate;
     private Template fxmlTemplate;
     private Template presenterTemplate;
@@ -42,7 +31,8 @@ public class CodeGenerator {
     private Template editCheckTemplate;
     private Template insertCheckTemplate;
     private Template mainTemplate;
-    private Template dashboardTemplate;
+    private Template dashboardPresenterTemplate;
+    private Template dashboardFxmlTemplate;
     private Widget w;
 
     public CodeGenerator(Widget widget) {
@@ -56,33 +46,34 @@ public class CodeGenerator {
         velocityEngine = new VelocityEngine();
         velocityEngine.init(p);
 
-        cssTemplate  = velocityEngine.getTemplate(CSS_TEMPLATE_FILE);
-        fxmlTemplate = velocityEngine.getTemplate(FXML_TEMPLATE_FILE);
-        presenterTemplate = velocityEngine.getTemplate(PRESENTER_TEMPLATE_FILE);
-        viewTemplate  = velocityEngine.getTemplate(VIEW_TEMPLATE_FILE);
-        serviceTemplate  = velocityEngine.getTemplate(SERVICE_TEMPLATE_FILE);
-        editCheckTemplate = velocityEngine.getTemplate(EDIT_CHECK_TEMPLATE_FILE);
-        insertCheckTemplate = velocityEngine.getTemplate(INSERT_CHECK_TEMPLATE_FILE);
-        dashboardTemplate = velocityEngine.getTemplate(DASHBOARD_TEMPLATE_FILE);
-        mainTemplate = velocityEngine.getTemplate(MAIN_TEMPLATE_FILE);
+        cssTemplate = velocityEngine.getTemplate(ScUtil.CSS_TEMPLATE_FILE);
+        fxmlTemplate = velocityEngine.getTemplate(ScUtil.FXML_TEMPLATE_FILE);
+        presenterTemplate = velocityEngine.getTemplate(ScUtil.PRESENTER_TEMPLATE_FILE);
+        viewTemplate = velocityEngine.getTemplate(ScUtil.VIEW_TEMPLATE_FILE);
+        serviceTemplate = velocityEngine.getTemplate(ScUtil.SERVICE_TEMPLATE_FILE);
+        editCheckTemplate = velocityEngine.getTemplate(ScUtil.EDIT_CHECK_TEMPLATE_FILE);
+        insertCheckTemplate = velocityEngine.getTemplate(ScUtil.INSERT_CHECK_TEMPLATE_FILE);
+        dashboardPresenterTemplate = velocityEngine.getTemplate(ScUtil.DASHBOARD_PRESENTER_TEMPLATE_FILE);
+        dashboardFxmlTemplate = velocityEngine.getTemplate(ScUtil.DASHBOARD_FXML_TEMPLATE_FILE);
+        mainTemplate = velocityEngine.getTemplate(ScUtil.MAIN_TEMPLATE_FILE);
 
-        JAVA_PACKAGE_PATH = widget.getJavaPackage().replace(".","/") +
+        JAVA_PACKAGE_PATH = widget.getJavaPackage().replace(".", "/") +
                 File.separator;
-        VALIDATOR_JAVA_PACKAGE_PATH = widget.getValidatorJavaPackage().replace(".","/") +
+        VALIDATOR_JAVA_PACKAGE_PATH = widget.getValidatorJavaPackage().replace(".", "/") +
                 File.separator;
-        MAIN_JAVA_PACKAGE_PATH = widget.getMainJavaPackage().replace(".","/") +
+        MAIN_JAVA_PACKAGE_PATH = widget.getMainJavaPackage().replace(".", "/") +
                 File.separator;
-        DASHBOARD_JAVA_PACKAGE_PATH = widget.getRootJavaPackage().replace(".","/") +
+        DASHBOARD_JAVA_PACKAGE_PATH = widget.getRootJavaPackage().replace(".", "/") +
                 File.separator +
-                Scutil.APP +
+                ScUtil.APP +
                 File.separator +
-                Scutil.DASHBOARD +
+                ScUtil.DASHBOARD +
                 File.separator;
 
-        String a= "b";
+        String a = "b";
     }
 
-    public void generate(){
+    public void generate() {
 
         context.put("mainJavaPackage", w.getMainJavaPackage());
         context.put("javaPackage", w.getJavaPackage());
@@ -95,87 +86,128 @@ public class CodeGenerator {
         context.put("fields", w.getFields());
 
 
-
         StringWriter css = new StringWriter();
-        cssTemplate.merge( context, css );
+        cssTemplate.merge(context, css);
 
         StringWriter fxml = new StringWriter();
-        fxmlTemplate.merge( context, fxml );
-
+        fxmlTemplate.merge(context, fxml);
 
         StringWriter presenter = new StringWriter();
-        presenterTemplate.merge( context, presenter );
+        presenterTemplate.merge(context, presenter);
 
         StringWriter view = new StringWriter();
-        viewTemplate.merge( context, view );
-
+        viewTemplate.merge(context, view);
 
         StringWriter service = new StringWriter();
-        serviceTemplate.merge( context, service );
+        serviceTemplate.merge(context, service);
 
         StringWriter editCheck = new StringWriter();
-        editCheckTemplate.merge( context, editCheck );
+        editCheckTemplate.merge(context, editCheck);
 
         StringWriter insertCheck = new StringWriter();
-        insertCheckTemplate.merge( context, insertCheck );
+        insertCheckTemplate.merge(context, insertCheck);
 
         StringWriter mainJavaApp = new StringWriter();
-        mainTemplate.merge( context, mainJavaApp );
+        mainTemplate.merge(context, mainJavaApp);
 
-        writeToFile(w.getClassName().toLowerCase() + ".css", css, JAVA_PACKAGE_PATH);
-        writeToFile(w.getClassName() + ".fxml", fxml, JAVA_PACKAGE_PATH);
-        writeToFile(w.getClassName() + "Presenter.java", presenter, JAVA_PACKAGE_PATH);
-        writeToFile(w.getClassName() + "View.java", view, JAVA_PACKAGE_PATH);
-        writeToFile(w.getClassName() + "Service.java", service, JAVA_PACKAGE_PATH);
-        writeToFile(w.getClassName() + "EditCheck.java", editCheck, VALIDATOR_JAVA_PACKAGE_PATH);
-        writeToFile(w.getClassName() + "InsertCheck.java", insertCheck, VALIDATOR_JAVA_PACKAGE_PATH);
-        writeToFile(w.getClassName() + "main.java", mainJavaApp, MAIN_JAVA_PACKAGE_PATH);
+        ScUtil.writeToFile(w.getClassName().toLowerCase() + ".css", css, JAVA_PACKAGE_PATH);
+        ScUtil.writeToFile(w.getClassName() + ScUtil.DOT_FXML, fxml, JAVA_PACKAGE_PATH);
+        ScUtil.writeToFile(w.getClassName() + ScUtil.PRESENTER +
+                ScUtil.DOT_JAVA, presenter,
+                JAVA_PACKAGE_PATH);
 
+        ScUtil.writeToFile(w.getClassName() +
+                ScUtil.VIEW + ScUtil.DOT_JAVA, view,
+                JAVA_PACKAGE_PATH);
 
+        ScUtil.writeToFile(w.getClassName() +
+                ScUtil.SERVICE +
+                ScUtil.DOT_JAVA ,
+                service,
+                JAVA_PACKAGE_PATH);
+
+        ScUtil.writeToFile(w.getClassName() + "EditCheck" +
+                ScUtil.DOT_JAVA,
+                editCheck,
+                VALIDATOR_JAVA_PACKAGE_PATH);
+
+        ScUtil.writeToFile(w.getClassName() + "InsertCheck"  +
+                ScUtil.DOT_JAVA,
+                insertCheck,
+                VALIDATOR_JAVA_PACKAGE_PATH);
+
+        ScUtil.writeToFile("App"  +
+                ScUtil.DOT_JAVA,
+                mainJavaApp,
+                MAIN_JAVA_PACKAGE_PATH);
 
 
         /*Generating dashboard*/
+        dashboardContex = new VelocityContext();
 
-        context.put("mainJavaPackage", w.getRootJavaPackage());
-        context.put("rootJavaPackage", w.getRootJavaPackage());
-        context.put("appPackage", Scutil.APP);
-        context.put("dashboardPackage", Scutil.DASHBOARD);
-        context.put("className", Scutil.DASHBOARD_CLASSNAME);
-        context.put("classNameInstance", Scutil.DASHBOARD_CLASSNAME_INSTANCE);
-        context.put("objectName", w.getObjectName());
-        context.put("sortBy", w.getSortByField());
-        context.put("findBy", w.getSortByField());
-        context.put("fields", w.getFields());
+        dashboardContex.put("mainJavaPackage", w.getRootJavaPackage());
+        dashboardContex.put("rootJavaPackage", w.getRootJavaPackage());
+        dashboardContex.put("appPackage", ScUtil.APP);
+        dashboardContex.put("dashboardPackage", ScUtil.DASHBOARD);
+        dashboardContex.put("className", ScUtil.DASHBOARD_CLASSNAME);
+        dashboardContex.put("classNameInstance", ScUtil.DASHBOARD_CLASSNAME_INSTANCE);
+        dashboardContex.put("objectName", w.getObjectName());
+        dashboardContex.put("javaPackage", w.getRootJavaPackage() +
+                ScUtil.DOT +
+                ScUtil.APP +
+                ScUtil.DOT +
+                ScUtil.DASHBOARD);
 
-        StringWriter dashboard = new StringWriter();
-        dashboardTemplate.merge( context, dashboard );
+        dashboardContex.put("fxController", w.getRootJavaPackage() +
+                ScUtil.DOT +
+                ScUtil.APP +
+                ScUtil.DOT +
+                ScUtil.DASHBOARD_CLASSNAME_INSTANCE +
+                ScUtil.DOT +
+                ScUtil.DASHBOARD_CLASSNAME +
+                ScUtil.PRESENTER);
 
-        writeToFile(Scutil.DASHBOARD + "Presenter.java", dashboard, DASHBOARD_JAVA_PACKAGE_PATH);
+        dashboardContex.put("onAction", ScUtil.MENU + w.getClassName());
+        dashboardContex.put("menuText", w.getClassName());
+        dashboardContex.put("menuImportPackage", w.getJavaPackage());
+        dashboardContex.put("className", w.getClassName());
+        dashboardContex.put("classNameInstance", w.getClassNameInstance());
 
+
+
+        StringWriter dashboardPresenter = new StringWriter();
+        dashboardPresenterTemplate.merge(dashboardContex, dashboardPresenter);
+
+        StringWriter dashboardView = new StringWriter();
+        viewTemplate.merge(dashboardContex, dashboardView);
+
+        StringWriter dashboardCss = new StringWriter();
+        viewTemplate.merge(dashboardContex, dashboardCss);
+
+        StringWriter dashboardFxml = new StringWriter();
+        dashboardFxmlTemplate.merge(dashboardContex, dashboardFxml);
+
+
+        ScUtil.writeToFile(ScUtil.DASHBOARD_CLASSNAME.toLowerCase() +
+                ScUtil.DOT_CSS, dashboardCss, DASHBOARD_JAVA_PACKAGE_PATH);
+
+        ScUtil.writeToFile(ScUtil.DASHBOARD_CLASSNAME +
+                ScUtil.PRESENTER +
+                ScUtil.DOT_JAVA,
+                dashboardPresenter,
+                DASHBOARD_JAVA_PACKAGE_PATH);
+
+        ScUtil.writeToFile(ScUtil.DASHBOARD_CLASSNAME +
+                ScUtil.VIEW +
+                ScUtil.DOT_JAVA,
+                dashboardView,
+                DASHBOARD_JAVA_PACKAGE_PATH);
+
+        ScUtil.writeToFile(ScUtil.DASHBOARD_CLASSNAME +
+                ScUtil.DOT_FXML,
+                dashboardFxml,
+                DASHBOARD_JAVA_PACKAGE_PATH);
     }
-
-    private void writeToFile(String fileToWrite, StringWriter contentToWrite, String packagePath){
-
-        String fileToSave = SAVE_PATH +
-                packagePath +
-                File.separator +
-                fileToWrite;
-        try {
-
-            new File(SAVE_PATH +
-                    packagePath)
-                    .mkdirs();
-
-            FileWriter fw = new FileWriter(fileToSave);
-            fw.write(contentToWrite.toString());
-            fw.close();
-
-        } catch (IOException e) {
-            LOGGER.error("ERROR - Could not save file {}", fileToSave);
-            LOGGER.error(e.toString());
-        }
-    }
-
 
 
 }
