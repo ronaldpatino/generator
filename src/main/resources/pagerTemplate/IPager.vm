@@ -1,0 +1,17 @@
+package com.sigecloud.util.pager;
+
+import javafx.collections.ObservableList;
+
+public interface IPager<T>{
+
+    void onPageLeft();
+    void onPageRight();
+    void paginate(String searchField, String searchTerm);
+    void paginate();
+    void calculatePages();
+    void onPageSize(Integer recordsPerPage);
+    void onCurrentPage(Integer currentSelectedPageinUi);
+    ObservableList<T> getRows();
+    ObservableList<T> getRows(String searchField, String term);
+
+}

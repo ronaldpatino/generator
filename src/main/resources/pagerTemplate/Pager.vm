@@ -1,0 +1,185 @@
+package com.sigecloud.util.pager;
+
+import com.sigecloud.dao.service.GenericServiceImpl;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
+import org.hibernate.SessionFactory;
+
+import java.util.List;
+
+public class Pager<T> implements com.sigecloud.util.pager.IPager<T> {
+
+    private SessionFactory sessionFactory;
+    private Class<T> cl;
+    private GenericServiceImpl<T> genericService;
+    private ObservableList<T> observableModelList = FXCollections.observableArrayList();
+    private ObservableList<Integer> observablePagesList = FXCollections.observableArrayList();
+    private SortedList<T> tableSortedData;
+    private int totalPages;
+    private int currentPageSizeIndex = 0;
+    private Integer currentPageSize = 5;
+    private int currentSelectedPage = 0;
+    private Integer[] recordsPerPageList = {5, 10, 25, 50, 100};
+    private int startIndex = 0;
+    private int endIndex = 5;
+    private String sortColumn;
+
+    public Pager(Class<T> cl, SessionFactory sessionFactory, String sortColumn) {
+
+        if (sessionFactory == null) {
+            throw new RuntimeException("Session factory is null!!!");
+        }
+
+        this.genericService = new GenericServiceImpl<>(cl, sessionFactory);
+        this.sessionFactory = sessionFactory;
+        this.cl = cl;
+        this.sortColumn = sortColumn;
+        totalPages = (int) Math.ceil((double) genericService.count(cl) / currentPageSize);
+        observablePagesList.clear();
+        for(int i = 0; i < totalPages; i++) { observablePagesList.add(i+1);}
+        paginate();
+    }
+
+    @Override
+    public void onPageLeft() {
+        if(currentSelectedPage > 0){
+            currentSelectedPage-=1;
+            paginate();
+        }
+    }
+
+    @Override
+    public void onPageRight() {
+        if(currentSelectedPage < totalPages-1){
+            currentSelectedPage+=1;
+            paginate();
+        }
+    }
+
+    @Override
+    public void paginate(String searchField, String searchTerm) {
+        getRows(searchField, searchTerm);
+    }
+
+    @Override
+    public void paginate() {
+
+        startIndex = currentSelectedPage * currentPageSize;
+        endIndex = currentPageSize;
+
+        Integer rowCount = genericService.count(cl);
+        if (endIndex > rowCount) {
+            endIndex = genericService.count(cl);
+        }
+
+        //ObservableList<T> rowList = getRows();
+        tableSortedData = new SortedList<>(getRows());
+        //clienteTable.setItems(sortedData);
+        //sortedData.comparatorProperty().bind(clienteTable.comparatorProperty());
+        //paginaActual.getSelectionModel().select(currentSelectedPage);
+    }
+
+    @Override
+    public void calculatePages() {
+        totalPages = (int) Math.ceil((double) genericService.count(cl)  / currentPageSize);
+
+        if (observablePagesList.size() >= 0) {
+            observablePagesList.clear();
+            for(int i = 0; i < totalPages; i++) {
+                observablePagesList.add(i + 1);
+            }
+            //@TODO Ccolocar en la UI
+            //paginaActual.setItems(observablePagesList);
+            //paginaActual.getSelectionModel().select(currentSelectedPage);
+        }
+
+    }
+
+    @Override
+    public void onPageSize(Integer recordsPerPage) {
+        currentPageSize = recordsPerPage;
+        calculatePages();
+        paginate();
+    }
+
+    @Override
+    public void onCurrentPage(Integer currentSelectedPageinUi) {
+        if(currentSelectedPageinUi != null){
+            currentSelectedPage = currentSelectedPageinUi -1;
+        }
+        else {
+            currentSelectedPage = 0;
+        }
+        paginate();
+    }
+
+    @Override
+    public ObservableList<T> getRows() {
+        List<T> clientes = genericService.
+                query("from " + cl.getName() +  " order by " + sortColumn + " asc" ,
+                        null,
+                        startIndex,
+                        endIndex);
+        observableModelList.clear();
+        observableModelList.addAll(clientes);
+        return observableModelList;
+    }
+
+    @Override
+    public ObservableList<T> getRows(String searchField, String term) {
+
+        totalPages = 0;
+        observablePagesList.clear();
+
+        String strQuery = "from " + cl.getName() + " where " + searchField +
+                " like '%" +
+                term +
+                "%'" +
+                " order by " +
+                sortColumn +
+                " asc";
+
+        System.out.println(strQuery);
+        List<T> clientes = genericService.
+                query(strQuery,
+                        null,
+                        startIndex,
+                        endIndex);
+        observableModelList.clear();
+        observableModelList.addAll(clientes);
+        return observableModelList;
+    }
+
+    public SortedList<T> getTableSortedData() {
+        return tableSortedData;
+    }
+
+    public int getTotalPages() {
+        return totalPages;
+    }
+
+    public int getCurrentPageSizeIndex() {
+        return currentPageSizeIndex;
+    }
+
+    public int getCurrentPageSize() {
+        return currentPageSize;
+    }
+
+    public int getCurrentSelectedPage() {
+        return currentSelectedPage;
+    }
+
+    public Integer[] getRecordsPerPageList() {
+        return recordsPerPageList;
+    }
+
+    public ObservableList<Integer> getObservablePagesList() {
+        return observablePagesList;
+    }
+
+    public ObservableList<T> getObservableModelList() {
+        return observableModelList;
+    }
+}
