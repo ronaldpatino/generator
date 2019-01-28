@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.URL;
 
 public class ScUtil {
 
@@ -22,6 +23,23 @@ public class ScUtil {
     public static String DASHBOARD_FXML_TEMPLATE_FILE = "templates/dashboardFxml.vm";
     public static String MAIN_TEMPLATE_FILE = "templates/main.vm";
 
+    public static String GENERIC_DAO_IMPL_TEMPLATE_FILE = "daoTemplates/GenericDAOImpl.vm";
+    public static String GENERIC_SERVICE_IMPL_TEMPLATE_FILE = "daoTemplates/GenericServiceImpl.vm";
+    public static String IGENERIC_DAO_TEMPLATE_FILE = "daoTemplates/IGenericDAO.vm";
+    public static String IGENERIC_SERVICE_TEMPLATE_FILE = "daoTemplates/IGenericService.vm";
+
+
+
+    public static String DAO_DIR = "templates/daoTemplates";
+    public static String DAO_PACKAGE = "dao";
+    public static String DAO_GENERIC = "generic";
+    public static String DAO_SERVICE = "service";
+    public static String GENERIC_DAO_IMPL = "GenericDAOImpl";
+    public static String IGENERIC_DAO = "IGenericDAOImpl";
+    public static String GENERIC_SERVICE_IMPL = "GenericServiceImpl";
+    public static String IGENERIC_SERVICE = "IGenericServiceImpl";
+
+
     public static String SAVE_PATH = System.getProperty("user.dir") + File.separator + "generated" + File.separator;
     public static String DASHBOARD = "dashboard";
     public static String APP = "app";
@@ -36,6 +54,7 @@ public class ScUtil {
     public static String DOT_JAVA = ".java";
     public static String DOT_CSS = ".css";
     public static String DOT_FXML = ".fxml";
+    public static String DOT_VM = ".vm";
 
 
 
