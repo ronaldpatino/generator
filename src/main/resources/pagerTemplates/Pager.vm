@@ -1,6 +1,6 @@
-package com.sigecloud.util.pager;
+package ${pagerPackage};
 
-import com.sigecloud.dao.service.GenericServiceImpl;
+import ${javaPackage}.${daoService}.GenericServiceImpl
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
@@ -8,7 +8,7 @@ import org.hibernate.SessionFactory;
 
 import java.util.List;
 
-public class Pager<T> implements com.sigecloud.util.pager.IPager<T> {
+public class Pager<T> implements ${pagerPackage}.IPager<T> {
 
     private SessionFactory sessionFactory;
     private Class<T> cl;

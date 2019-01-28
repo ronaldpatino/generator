@@ -2,6 +2,7 @@
   "rootJavaPackage" : "com.sigecloud",
   "mainJavaPackage" : "com.sigecloud.main",
   "javaPackage": "com.sigecloud.app.importar",
+  "utilJavaPackage": "com.sigecloud.util",
   "validatorJavaPackage": "com.sigecloud.util.validators.interfaces",
   "className":"Importar",
   "classNameInstance": "importar",

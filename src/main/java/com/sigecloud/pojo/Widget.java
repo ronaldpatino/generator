@@ -16,6 +16,7 @@ public class Widget {
     private String javaPackage;
     private String mainJavaPackage;
     private String validatorJavaPackage;
+    private String utilJavaPackage;
     private List<Field> fields = null;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -105,6 +106,14 @@ public class Widget {
 
     public void setValidatorJavaPackage(String validatorJavaPackage) {
         this.validatorJavaPackage = validatorJavaPackage;
+    }
+
+    public String getUtilJavaPackage() {
+        return utilJavaPackage;
+    }
+
+    public void setUtilJavaPackage(String utilJavaPackage) {
+        this.utilJavaPackage = utilJavaPackage;
     }
 
     public Map<String, Object> getAdditionalProperties() {

@@ -17,14 +17,17 @@ public class CodeGenerator {
 
     private static String JAVA_PACKAGE_PATH;
     private static String VALIDATOR_JAVA_PACKAGE_PATH;
+    private static String UTIL_JAVA_PACKAGE_PATH;
     private static String MAIN_JAVA_PACKAGE_PATH;
     private static String DASHBOARD_JAVA_PACKAGE_PATH;
     private static String DAO_JAVA_PACKAGE_PATH;
+
 
     private VelocityEngine velocityEngine;
     private VelocityContext context;
     private VelocityContext dashboardContex;
     private VelocityContext daoContex;
+    private VelocityContext pagerContex;
     private Template cssTemplate;
     private Template fxmlTemplate;
     private Template presenterTemplate;
@@ -39,6 +42,8 @@ public class CodeGenerator {
     private Template iGenericDaoTemplate;
     private Template genericServiceImpTemplate;
     private Template iGenericServiceTemplate;
+    private Template pagerTemplate;
+    private Template iPagerTemplate;
 
     private Widget w;
 
@@ -63,13 +68,21 @@ public class CodeGenerator {
         dashboardPresenterTemplate = velocityEngine.getTemplate(ScUtil.DASHBOARD_PRESENTER_TEMPLATE_FILE);
         dashboardFxmlTemplate = velocityEngine.getTemplate(ScUtil.DASHBOARD_FXML_TEMPLATE_FILE);
         mainTemplate = velocityEngine.getTemplate(ScUtil.MAIN_TEMPLATE_FILE);
+        pagerTemplate = velocityEngine.getTemplate(ScUtil.PAGER_TEMPLATE_FILE);
+        iPagerTemplate = velocityEngine.getTemplate(ScUtil.IPAGER_TEMPLATE_FILE);
 
         JAVA_PACKAGE_PATH = widget.getJavaPackage().replace(ScUtil.DOT, File.separator) +
                 File.separator;
+
         VALIDATOR_JAVA_PACKAGE_PATH = widget.getValidatorJavaPackage().replace(ScUtil.DOT, File.separator) +
                 File.separator;
+
+        UTIL_JAVA_PACKAGE_PATH = widget.getUtilJavaPackage().replace(ScUtil.DOT, File.separator) +
+                File.separator;
+
         MAIN_JAVA_PACKAGE_PATH = widget.getMainJavaPackage().replace(ScUtil.DOT, File.separator) +
                 File.separator;
+
         DASHBOARD_JAVA_PACKAGE_PATH = widget.getRootJavaPackage().replace(ScUtil.DOT, File.separator) +
                 File.separator +
                 ScUtil.APP +
@@ -228,7 +241,7 @@ public class CodeGenerator {
 
         /*Generating generic DAO*/
         daoContex = new VelocityContext();
-        daoContex.put("mainJavaPackage", w.getRootJavaPackage());
+        daoContex.put("mainJavaPackage", w.getMainJavaPackage());
         daoContex.put("rootJavaPackage", w.getRootJavaPackage());
         daoContex.put("appPackage", ScUtil.APP);
         daoContex.put("className", ScUtil.DASHBOARD_CLASSNAME);
@@ -282,6 +295,51 @@ public class CodeGenerator {
                 DAO_JAVA_PACKAGE_PATH +
                         File.separator +
                         ScUtil.DAO_SERVICE);
+
+
+
+
+        /* Pager code generator*/
+        pagerContex = new VelocityContext();
+        pagerContex.put("rootJavaPackage", w.getRootJavaPackage());
+        pagerContex.put("utilPackage", w.getUtilJavaPackage());
+        pagerContex.put("className", w.getClassName());
+        pagerContex.put("classNameInstance", w.getClassNameInstance());
+        pagerContex.put("objectName", w.getObjectName());
+        pagerContex.put("pagerPackage", w.getUtilJavaPackage() +
+                ScUtil.DOT +
+                ScUtil.PAGER_PACKAGE);
+        pagerContex.put("daoGeneric", ScUtil.DAO_GENERIC);
+        pagerContex.put("daoService", ScUtil.DAO_SERVICE);
+        pagerContex.put("javaPackage", w.getRootJavaPackage() +
+                ScUtil.DOT +
+                ScUtil.DAO_PACKAGE);
+        pagerContex.put("daoService", ScUtil.DAO_SERVICE);
+
+        StringWriter ipager = new StringWriter();
+        iPagerTemplate.merge(pagerContex, ipager);
+
+        StringWriter pager = new StringWriter();
+        pagerTemplate.merge(pagerContex, pager);
+
+
+        ScUtil.writeToFile(ScUtil.IPAGER +
+                        ScUtil.DOT_JAVA,
+                ipager,
+                UTIL_JAVA_PACKAGE_PATH +
+                        File.separator +
+                        ScUtil.PAGER_PACKAGE);
+
+        ScUtil.writeToFile(ScUtil.PAGER +
+                        ScUtil.DOT_JAVA,
+                pager,
+                UTIL_JAVA_PACKAGE_PATH +
+                        File.separator +
+                        ScUtil.PAGER_PACKAGE);
+
+
+
+
     }
 
 

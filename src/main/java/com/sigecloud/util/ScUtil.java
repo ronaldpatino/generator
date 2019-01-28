@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.URL;
 
 public class ScUtil {
 
@@ -28,9 +27,14 @@ public class ScUtil {
     public static String IGENERIC_DAO_TEMPLATE_FILE = "daoTemplates/IGenericDAO.vm";
     public static String IGENERIC_SERVICE_TEMPLATE_FILE = "daoTemplates/IGenericService.vm";
 
+    public static String  IPAGER_TEMPLATE_FILE = "pagerTemplates/IPager.vm";
+    public static String  PAGER_TEMPLATE_FILE = "pagerTemplates/Pager.vm";
+
 
 
     public static String DAO_DIR = "templates/daoTemplates";
+    public static String UTIL_PACKAGE = "util";
+    public static String PAGER_PACKAGE = "pager";
     public static String DAO_PACKAGE = "dao";
     public static String DAO_GENERIC = "generic";
     public static String DAO_SERVICE = "service";
@@ -38,9 +42,29 @@ public class ScUtil {
     public static String IGENERIC_DAO = "IGenericDAOImpl";
     public static String GENERIC_SERVICE_IMPL = "GenericServiceImpl";
     public static String IGENERIC_SERVICE = "IGenericServiceImpl";
+    public static String IPAGER = "IPager";
+    public static String PAGER = "Pager";
 
 
-    public static String SAVE_PATH = System.getProperty("user.dir") + File.separator + "generated" + File.separator;
+    public static String SAVE_PATH = System.getProperty("user.dir") +
+            File.separator +
+            "generated" +
+            File.separator +
+            "main" +
+            File.separator +
+            "java" +
+            File.separator;
+
+    public static String RESOURCE_SAVE_PATH = System.getProperty("user.dir") +
+            File.separator +
+            "generated" +
+            File.separator +
+            "main" +
+            File.separator +
+            "resource" +
+            File.separator;
+
+
     public static String DASHBOARD = "dashboard";
     public static String APP = "app";
     public static String DASHBOARD_CLASSNAME = "Dashboard";

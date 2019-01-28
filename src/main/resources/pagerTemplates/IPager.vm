@@ -1,4 +1,4 @@
-package com.sigecloud.util.pager;
+package ${pagerPackage};
 
 import javafx.collections.ObservableList;
 
