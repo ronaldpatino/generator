@@ -12,7 +12,9 @@ public class Widget {
     private String objectName;
     private String sortByField;
     private String findByField;
+    private String rootJavaPackage;
     private String javaPackage;
+    private String mainJavaPackage;
     private String validatorJavaPackage;
     private List<Field> fields = null;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -83,6 +85,22 @@ public class Widget {
 
     public String getValidatorJavaPackage() {
         return validatorJavaPackage;
+    }
+
+    public String getMainJavaPackage() {
+        return mainJavaPackage;
+    }
+
+    public void setMainJavaPackage(String mainJavaPackage) {
+        this.mainJavaPackage = mainJavaPackage;
+    }
+
+    public String getRootJavaPackage() {
+        return rootJavaPackage;
+    }
+
+    public void setRootJavaPackage(String rootJavaPackage) {
+        this.rootJavaPackage = rootJavaPackage;
     }
 
     public void setValidatorJavaPackage(String validatorJavaPackage) {

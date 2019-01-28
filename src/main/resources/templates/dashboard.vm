@@ -1,0 +1,39 @@
+package ${rootJavaPackage}.${appPackage}.${dashboardPackage}
+
+import com.sigecloud.app.parametro.ParametroView;
+
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.MenuItem;
+import javafx.scene.layout.VBox;
+
+import java.net.URL;
+import java.util.ResourceBundle;
+
+
+public class DashboardPresenter implements Initializable {
+
+    @FXML
+    private MenuItem parametrosFrm;
+
+    @FXML
+    private VBox contenido;
+
+    @FXML
+    void mainAppSalir(ActionEvent event) {
+
+    }
+
+    @FXML
+    void subMenuParametros(ActionEvent event) {
+        ParametroView parametroView = new ParametroView();
+        contenido.getChildren().clear();
+        contenido.getChildren().add(parametroView.getView());
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+    }
+}

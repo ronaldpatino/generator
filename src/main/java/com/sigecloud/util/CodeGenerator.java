@@ -19,6 +19,8 @@ public class CodeGenerator {
     private static String SAVE_PATH = System.getProperty("user.dir") + File.separator + "generated" + File.separator;
     private static String JAVA_PACKAGE_PATH;
     private static String VALIDATOR_JAVA_PACKAGE_PATH;
+    private static String MAIN_JAVA_PACKAGE_PATH;
+    private static String DASHBOARD_JAVA_PACKAGE_PATH;
 
     private static String CSS_TEMPLATE_FILE = "templates/css.vm";
     private static String FXML_TEMPLATE_FILE = "templates/fxml.vm";
@@ -27,6 +29,8 @@ public class CodeGenerator {
     private static String SERVICE_TEMPLATE_FILE = "templates/service.vm";
     private static String EDIT_CHECK_TEMPLATE_FILE = "templates/editCheck.vm";
     private static String INSERT_CHECK_TEMPLATE_FILE = "templates/insertCheck.vm";
+    private static String DASHBOARD_TEMPLATE_FILE = "templates/dashboard.vm";
+    private static String MAIN_TEMPLATE_FILE = "templates/main.vm";
 
     private VelocityEngine velocityEngine;
     private VelocityContext context;
@@ -37,6 +41,8 @@ public class CodeGenerator {
     private Template serviceTemplate;
     private Template editCheckTemplate;
     private Template insertCheckTemplate;
+    private Template mainTemplate;
+    private Template dashboardTemplate;
     private Widget w;
 
     public CodeGenerator(Widget widget) {
@@ -57,14 +63,28 @@ public class CodeGenerator {
         serviceTemplate  = velocityEngine.getTemplate(SERVICE_TEMPLATE_FILE);
         editCheckTemplate = velocityEngine.getTemplate(EDIT_CHECK_TEMPLATE_FILE);
         insertCheckTemplate = velocityEngine.getTemplate(INSERT_CHECK_TEMPLATE_FILE);
+        dashboardTemplate = velocityEngine.getTemplate(DASHBOARD_TEMPLATE_FILE);
+        mainTemplate = velocityEngine.getTemplate(MAIN_TEMPLATE_FILE);
 
-        JAVA_PACKAGE_PATH = widget.getJavaPackage().replace(".","/") + File.separator;
-        VALIDATOR_JAVA_PACKAGE_PATH = widget.getValidatorJavaPackage().replace(".","/") + File.separator;
+        JAVA_PACKAGE_PATH = widget.getJavaPackage().replace(".","/") +
+                File.separator;
+        VALIDATOR_JAVA_PACKAGE_PATH = widget.getValidatorJavaPackage().replace(".","/") +
+                File.separator;
+        MAIN_JAVA_PACKAGE_PATH = widget.getMainJavaPackage().replace(".","/") +
+                File.separator;
+        DASHBOARD_JAVA_PACKAGE_PATH = widget.getRootJavaPackage().replace(".","/") +
+                File.separator +
+                Scutil.APP +
+                File.separator +
+                Scutil.DASHBOARD +
+                File.separator;
 
+        String a= "b";
     }
 
     public void generate(){
 
+        context.put("mainJavaPackage", w.getMainJavaPackage());
         context.put("javaPackage", w.getJavaPackage());
         context.put("validatorJavaPackage", w.getValidatorJavaPackage());
         context.put("className", w.getClassName());
@@ -99,6 +119,9 @@ public class CodeGenerator {
         StringWriter insertCheck = new StringWriter();
         insertCheckTemplate.merge( context, insertCheck );
 
+        StringWriter mainJavaApp = new StringWriter();
+        mainTemplate.merge( context, mainJavaApp );
+
         writeToFile(w.getClassName().toLowerCase() + ".css", css, JAVA_PACKAGE_PATH);
         writeToFile(w.getClassName() + ".fxml", fxml, JAVA_PACKAGE_PATH);
         writeToFile(w.getClassName() + "Presenter.java", presenter, JAVA_PACKAGE_PATH);
@@ -106,7 +129,28 @@ public class CodeGenerator {
         writeToFile(w.getClassName() + "Service.java", service, JAVA_PACKAGE_PATH);
         writeToFile(w.getClassName() + "EditCheck.java", editCheck, VALIDATOR_JAVA_PACKAGE_PATH);
         writeToFile(w.getClassName() + "InsertCheck.java", insertCheck, VALIDATOR_JAVA_PACKAGE_PATH);
+        writeToFile(w.getClassName() + "main.java", mainJavaApp, MAIN_JAVA_PACKAGE_PATH);
 
+
+
+
+        /*Generating dashboard*/
+
+        context.put("mainJavaPackage", w.getRootJavaPackage());
+        context.put("rootJavaPackage", w.getRootJavaPackage());
+        context.put("appPackage", Scutil.APP);
+        context.put("dashboardPackage", Scutil.DASHBOARD);
+        context.put("className", Scutil.DASHBOARD_CLASSNAME);
+        context.put("classNameInstance", Scutil.DASHBOARD_CLASSNAME_INSTANCE);
+        context.put("objectName", w.getObjectName());
+        context.put("sortBy", w.getSortByField());
+        context.put("findBy", w.getSortByField());
+        context.put("fields", w.getFields());
+
+        StringWriter dashboard = new StringWriter();
+        dashboardTemplate.merge( context, dashboard );
+
+        writeToFile(Scutil.DASHBOARD + "Presenter.java", dashboard, DASHBOARD_JAVA_PACKAGE_PATH);
 
     }
 

@@ -9,6 +9,13 @@ import java.io.FileReader;
 
 public class Scutil {
 
+    public static String DASHBOARD = "dashboard";
+    public static String APP = "app";
+    public static String DASHBOARD_CLASSNAME = "Dashboard";
+    public static String DASHBOARD_CLASSNAME_INSTANCE = "dashboard";
+
+
+
     public static Widget loadJsonFile(String jsonFile){
         Gson gson = new Gson();
         Widget widget = null;
