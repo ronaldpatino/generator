@@ -1,19 +1,15 @@
 package com.sigecloud;
 
-import com.google.gson.Gson;
 import com.sigecloud.pojo.Widget;
 import com.sigecloud.util.CodeGenerator;
-import com.sigecloud.util.Scutil;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
+import com.sigecloud.util.ScUtil;
 
 public class Main {
     public static void main( String[] args )
             throws Exception
     {
 
-        Widget widget = Scutil.loadJsonFile("test.json");
+        Widget widget = ScUtil.loadJsonFile("test.json");
 
         CodeGenerator codeGenerator = new CodeGenerator(widget);
 
