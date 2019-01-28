@@ -1,6 +1,6 @@
-package com.sigecloud.dao.service;
+package ${javaPackage}.${daoService};
 
-import com.sigecloud.dao.generic.IGenericDAO;
+import ${javaPackage}.${daoGeneric}.IGenericDAO;
 
 import java.util.List;
 

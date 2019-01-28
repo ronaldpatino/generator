@@ -1,4 +1,4 @@
-package com.sigecloud.dao.service;
+package ${javaPackage}.${daoService};
 
 import com.sigecloud.dao.generic.GenericDAOImpl;
 import com.sigecloud.dao.generic.IGenericDAO;
@@ -7,7 +7,7 @@ import org.hibernate.SessionFactory;
 import java.util.List;
 import java.util.Map;
 
-public class GenericServiceImpl<T> implements com.sigecloud.dao.service.IGenericService<T> {
+public class GenericServiceImpl<T> implements ${javaPackage}.${daoService}.IGenericService<T> {
 
     private IGenericDAO<T> dao;
     private Class<T> cl;

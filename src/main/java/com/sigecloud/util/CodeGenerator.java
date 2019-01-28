@@ -19,10 +19,12 @@ public class CodeGenerator {
     private static String VALIDATOR_JAVA_PACKAGE_PATH;
     private static String MAIN_JAVA_PACKAGE_PATH;
     private static String DASHBOARD_JAVA_PACKAGE_PATH;
+    private static String DAO_JAVA_PACKAGE_PATH;
 
     private VelocityEngine velocityEngine;
     private VelocityContext context;
     private VelocityContext dashboardContex;
+    private VelocityContext daoContex;
     private Template cssTemplate;
     private Template fxmlTemplate;
     private Template presenterTemplate;
@@ -33,6 +35,11 @@ public class CodeGenerator {
     private Template mainTemplate;
     private Template dashboardPresenterTemplate;
     private Template dashboardFxmlTemplate;
+    private Template genericDaoImpTemplate;
+    private Template iGenericDaoTemplate;
+    private Template genericServiceImpTemplate;
+    private Template iGenericServiceTemplate;
+
     private Widget w;
 
     public CodeGenerator(Widget widget) {
@@ -57,20 +64,30 @@ public class CodeGenerator {
         dashboardFxmlTemplate = velocityEngine.getTemplate(ScUtil.DASHBOARD_FXML_TEMPLATE_FILE);
         mainTemplate = velocityEngine.getTemplate(ScUtil.MAIN_TEMPLATE_FILE);
 
-        JAVA_PACKAGE_PATH = widget.getJavaPackage().replace(".", "/") +
+        JAVA_PACKAGE_PATH = widget.getJavaPackage().replace(ScUtil.DOT, File.separator) +
                 File.separator;
-        VALIDATOR_JAVA_PACKAGE_PATH = widget.getValidatorJavaPackage().replace(".", "/") +
+        VALIDATOR_JAVA_PACKAGE_PATH = widget.getValidatorJavaPackage().replace(ScUtil.DOT, File.separator) +
                 File.separator;
-        MAIN_JAVA_PACKAGE_PATH = widget.getMainJavaPackage().replace(".", "/") +
+        MAIN_JAVA_PACKAGE_PATH = widget.getMainJavaPackage().replace(ScUtil.DOT, File.separator) +
                 File.separator;
-        DASHBOARD_JAVA_PACKAGE_PATH = widget.getRootJavaPackage().replace(".", "/") +
+        DASHBOARD_JAVA_PACKAGE_PATH = widget.getRootJavaPackage().replace(ScUtil.DOT, File.separator) +
                 File.separator +
                 ScUtil.APP +
                 File.separator +
                 ScUtil.DASHBOARD +
                 File.separator;
 
-        String a = "b";
+        DAO_JAVA_PACKAGE_PATH = widget.getRootJavaPackage().replace(ScUtil.DOT, File.separator) +
+                File.separator +
+                ScUtil.DAO_PACKAGE +
+                File.separator;
+
+
+        genericDaoImpTemplate = velocityEngine.getTemplate(ScUtil.GENERIC_DAO_IMPL_TEMPLATE_FILE);
+        iGenericDaoTemplate = velocityEngine.getTemplate(ScUtil.IGENERIC_DAO_TEMPLATE_FILE);
+        genericServiceImpTemplate  = velocityEngine.getTemplate(ScUtil.GENERIC_SERVICE_IMPL_TEMPLATE_FILE);
+        iGenericServiceTemplate = velocityEngine.getTemplate(ScUtil.IGENERIC_SERVICE_TEMPLATE_FILE);
+
     }
 
     public void generate() {
@@ -207,6 +224,64 @@ public class CodeGenerator {
                 ScUtil.DOT_FXML,
                 dashboardFxml,
                 DASHBOARD_JAVA_PACKAGE_PATH);
+
+
+        /*Generating generic DAO*/
+        daoContex = new VelocityContext();
+        daoContex.put("mainJavaPackage", w.getRootJavaPackage());
+        daoContex.put("rootJavaPackage", w.getRootJavaPackage());
+        daoContex.put("appPackage", ScUtil.APP);
+        daoContex.put("className", ScUtil.DASHBOARD_CLASSNAME);
+        daoContex.put("classNameInstance", ScUtil.DASHBOARD_CLASSNAME_INSTANCE);
+        daoContex.put("objectName", w.getObjectName());
+        daoContex.put("javaPackage", w.getRootJavaPackage() +
+                ScUtil.DOT +
+                ScUtil.DAO_PACKAGE);
+        daoContex.put("daoGeneric", ScUtil.DAO_GENERIC);
+        daoContex.put("daoService", ScUtil.DAO_SERVICE);
+
+        StringWriter genericDaoImp = new StringWriter();
+        genericDaoImpTemplate.merge(daoContex, genericDaoImp);
+
+        StringWriter genericServiceImpl = new StringWriter();
+        genericServiceImpTemplate.merge(daoContex, genericServiceImpl);
+
+
+        StringWriter iGenericDao = new StringWriter();
+        iGenericDaoTemplate.merge(daoContex, iGenericDao);
+
+
+        StringWriter iGenericService = new StringWriter();
+        iGenericServiceTemplate.merge(daoContex, iGenericService);
+
+
+        ScUtil.writeToFile(ScUtil.GENERIC_DAO_IMPL +
+                        ScUtil.DOT_JAVA,
+                genericDaoImp,
+                DAO_JAVA_PACKAGE_PATH +
+                        File.separator +
+                        ScUtil.DAO_GENERIC);
+
+        ScUtil.writeToFile(ScUtil.IGENERIC_DAO +
+                        ScUtil.DOT_JAVA,
+                iGenericDao,
+                DAO_JAVA_PACKAGE_PATH +
+                        File.separator +
+                        ScUtil.DAO_GENERIC);
+
+        ScUtil.writeToFile(ScUtil.GENERIC_SERVICE_IMPL +
+                        ScUtil.DOT_JAVA,
+                genericServiceImpl,
+                DAO_JAVA_PACKAGE_PATH +
+                        File.separator +
+                        ScUtil.DAO_SERVICE);
+
+        ScUtil.writeToFile(ScUtil.IGENERIC_SERVICE +
+                        ScUtil.DOT_JAVA,
+                iGenericService,
+                DAO_JAVA_PACKAGE_PATH +
+                        File.separator +
+                        ScUtil.DAO_SERVICE);
     }
 
 
