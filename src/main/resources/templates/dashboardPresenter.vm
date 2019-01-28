@@ -1,6 +1,6 @@
 package ${rootJavaPackage}.${appPackage}.${dashboardPackage}
 
-import com.sigecloud.app.parametro.ParametroView;
+import ${menuImportPackage}.${className}View;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -15,10 +15,10 @@ import java.util.ResourceBundle;
 public class DashboardPresenter implements Initializable {
 
     @FXML
-    private MenuItem parametrosFrm;
+    private MenuItem ${classNameInstance}Frm;
 
     @FXML
-    private VBox contenido;
+    private VBox dashBoardContent;
 
     @FXML
     void mainAppSalir(ActionEvent event) {
@@ -27,9 +27,9 @@ public class DashboardPresenter implements Initializable {
 
     @FXML
     void subMenuParametros(ActionEvent event) {
-        ParametroView parametroView = new ParametroView();
-        contenido.getChildren().clear();
-        contenido.getChildren().add(parametroView.getView());
+        ${className}View ${classNameInstance}View = new ${className}View();
+        dashBoardContent.getChildren().clear();
+        dashBoardContent.getChildren().add(${classNameInstance}View.getView());
     }
 
     @Override
