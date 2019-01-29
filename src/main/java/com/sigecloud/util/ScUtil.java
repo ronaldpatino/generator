@@ -30,6 +30,10 @@ public class ScUtil {
     public static String  IPAGER_TEMPLATE_FILE = "pagerTemplates/IPager.vm";
     public static String  PAGER_TEMPLATE_FILE = "pagerTemplates/Pager.vm";
 
+    public static String  HIBERNATE_TEMPLATE_FILE = "hibernateTemplates/hibernate.cfg.vm";
+
+    public static String  MAVEN_TEMPLATE_FILE = "mavenTemplates/pom.vm";
+
 
 
     public static String DAO_DIR = "templates/daoTemplates";
@@ -44,6 +48,8 @@ public class ScUtil {
     public static String IGENERIC_SERVICE = "IGenericServiceImpl";
     public static String IPAGER = "IPager";
     public static String PAGER = "Pager";
+    public static String HIBERNATE = "hibernate.cfg";
+    public static String POM = "pom";
 
 
     public static String SAVE_PATH = System.getProperty("user.dir") +
@@ -65,6 +71,12 @@ public class ScUtil {
             File.separator;
 
 
+    public static String HOME_SAVE_PATH = System.getProperty("user.dir") +
+            File.separator +
+            "generated" +
+            File.separator;
+
+
     public static String DASHBOARD = "dashboard";
     public static String APP = "app";
     public static String DASHBOARD_CLASSNAME = "Dashboard";
@@ -79,6 +91,7 @@ public class ScUtil {
     public static String DOT_CSS = ".css";
     public static String DOT_FXML = ".fxml";
     public static String DOT_VM = ".vm";
+    public static String DOT_XML = ".xml";
 
 
 
@@ -119,4 +132,42 @@ public class ScUtil {
             LOGGER.error(e.toString());
         }
     }
+
+
+    public static  void writeToResource(String fileToWrite, StringWriter contentToWrite ) {
+
+        String fileToSave = RESOURCE_SAVE_PATH +
+                fileToWrite;
+        try {
+
+            new File(RESOURCE_SAVE_PATH ).mkdirs();
+
+            FileWriter fw = new FileWriter(fileToSave);
+            fw.write(contentToWrite.toString());
+            fw.close();
+
+        } catch (IOException e) {
+            LOGGER.error("ERROR - Could not save file {}", fileToSave);
+            LOGGER.error(e.toString());
+        }
+    }
+
+    public static  void writeMaven(StringWriter contentToWrite) {
+
+        String fileToSave = HOME_SAVE_PATH +
+                POM +
+                DOT_XML;
+        try {
+
+            FileWriter fw = new FileWriter(fileToSave);
+            fw.write(contentToWrite.toString());
+            fw.close();
+
+        } catch (IOException e) {
+            LOGGER.error("ERROR - Could not save file {}", fileToSave);
+            LOGGER.error(e.toString());
+        }
+    }
+
 }
+

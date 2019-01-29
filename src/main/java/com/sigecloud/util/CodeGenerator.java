@@ -21,6 +21,7 @@ public class CodeGenerator {
     private static String MAIN_JAVA_PACKAGE_PATH;
     private static String DASHBOARD_JAVA_PACKAGE_PATH;
     private static String DAO_JAVA_PACKAGE_PATH;
+    private static String MAVEN_PATH;
 
 
     private VelocityEngine velocityEngine;
@@ -28,6 +29,8 @@ public class CodeGenerator {
     private VelocityContext dashboardContex;
     private VelocityContext daoContex;
     private VelocityContext pagerContex;
+    private VelocityContext hibernateContex;
+    private VelocityContext mavenContex;
     private Template cssTemplate;
     private Template fxmlTemplate;
     private Template presenterTemplate;
@@ -44,6 +47,8 @@ public class CodeGenerator {
     private Template iGenericServiceTemplate;
     private Template pagerTemplate;
     private Template iPagerTemplate;
+    private Template hibernateTemplate;
+    private Template mavenTemplate;
 
     private Widget w;
 
@@ -54,7 +59,6 @@ public class CodeGenerator {
         p.setProperty("resource.loader", "class");
         p.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
 
-        context = new VelocityContext();
         velocityEngine = new VelocityEngine();
         velocityEngine.init(p);
 
@@ -70,6 +74,7 @@ public class CodeGenerator {
         mainTemplate = velocityEngine.getTemplate(ScUtil.MAIN_TEMPLATE_FILE);
         pagerTemplate = velocityEngine.getTemplate(ScUtil.PAGER_TEMPLATE_FILE);
         iPagerTemplate = velocityEngine.getTemplate(ScUtil.IPAGER_TEMPLATE_FILE);
+        mavenTemplate  = velocityEngine.getTemplate(ScUtil.MAVEN_TEMPLATE_FILE);
 
         JAVA_PACKAGE_PATH = widget.getJavaPackage().replace(ScUtil.DOT, File.separator) +
                 File.separator;
@@ -95,16 +100,20 @@ public class CodeGenerator {
                 ScUtil.DAO_PACKAGE +
                 File.separator;
 
+        MAVEN_PATH = ScUtil.HOME_SAVE_PATH;
 
         genericDaoImpTemplate = velocityEngine.getTemplate(ScUtil.GENERIC_DAO_IMPL_TEMPLATE_FILE);
         iGenericDaoTemplate = velocityEngine.getTemplate(ScUtil.IGENERIC_DAO_TEMPLATE_FILE);
         genericServiceImpTemplate  = velocityEngine.getTemplate(ScUtil.GENERIC_SERVICE_IMPL_TEMPLATE_FILE);
         iGenericServiceTemplate = velocityEngine.getTemplate(ScUtil.IGENERIC_SERVICE_TEMPLATE_FILE);
 
+        hibernateTemplate = velocityEngine.getTemplate(ScUtil.HIBERNATE_TEMPLATE_FILE);
+
     }
 
     public void generate() {
 
+        context = new VelocityContext();
         context.put("mainJavaPackage", w.getMainJavaPackage());
         context.put("javaPackage", w.getJavaPackage());
         context.put("validatorJavaPackage", w.getValidatorJavaPackage());
@@ -337,8 +346,27 @@ public class CodeGenerator {
                         File.separator +
                         ScUtil.PAGER_PACKAGE);
 
+        /* Hibernate*/
+        hibernateContex = new VelocityContext();
+        hibernateContex.put("className", w.getClassName());
+
+        StringWriter hibernate = new StringWriter();
+        hibernateTemplate.merge(hibernateContex, hibernate);
+
+        ScUtil.writeToResource(ScUtil.HIBERNATE + ScUtil.DOT_XML,  hibernate);
+
+        /*Maven */
 
 
+        mavenContex = new VelocityContext();
+        mavenContex.put("rootJavaPackage", w.getRootJavaPackage());
+        mavenContex.put("artifactId", "generator");
+        mavenContex.put("artifactName", "generator");
+
+        StringWriter maven = new StringWriter();
+        mavenTemplate.merge(mavenContex, maven);
+
+        ScUtil.writeMaven(maven);
 
     }
 
