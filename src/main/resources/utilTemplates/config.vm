@@ -1,0 +1,39 @@
+package com.sigecloud.util;
+
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
+
+
+public class Config {
+    private static Config singletonConfig;
+
+    private Properties efp = null;
+
+    private Config() {
+        efp = new Properties();
+        try {
+            FileInputStream input = new FileInputStream(new File("config.properties"));
+            efp.load(input);
+        } catch (Exception e) {
+            ScUtil.stackTraceToString(e);
+        }
+    }
+
+    private static synchronized Config getSingletonConfig() {
+        if (singletonConfig == null) {
+            singletonConfig = new Config();
+        }
+        return singletonConfig;
+    }
+
+    private Properties getParams() {
+        return efp;
+    }
+
+    public static String getValue(String key){
+        return getSingletonConfig().getParams().getProperty(key);
+    }
+
+}

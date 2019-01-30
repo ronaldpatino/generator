@@ -34,6 +34,14 @@ public class ScUtil {
 
     public static String  MAVEN_TEMPLATE_FILE = "mavenTemplates/pom.vm";
 
+    public static String  DOMAIN_TEMPLATE_FILE = "domainTemplates/domain.vm";
+
+    public static String  CONFIG_TEMPLATE_FILE = "utilTemplates/config.vm";
+    public static String  FXUTIL_TEMPLATE_FILE = "utilTemplates/fxUtil.vm";
+    public static String  HIBERNATE_UTILS_TEMPLATE_FILE = "utilTemplates/hibernateUtils.vm";
+    public static String  SCUTIL_TEMPLATE_FILE = "utilTemplates/scUtil.vm";
+    public static String  CONFIG_PROPERTIES_TEMPLATE_FILE = "configTemplates/configProperties.vm";
+
 
 
     public static String DAO_DIR = "templates/daoTemplates";

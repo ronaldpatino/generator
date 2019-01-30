@@ -1,4 +1,4 @@
-package ${javaPackage}
+package ${javaPackage};
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,7 @@ public class ${className}Service {
 
     @PostConstruct
     public void init() {
-        LOGGER.info("Initializing Service {}", ${className});
+        LOGGER.info("Initializing Service ${className}Service");
     }
 
     //@TODO Implement services to acces data here
@@ -22,6 +22,6 @@ public class ${className}Service {
 
     @PreDestroy
     public void cleanup() {
-        LOGGER.info("Cleaning up Service {}", ${className});
+        LOGGER.info("Cleaning up Service ${className}Service");
     }
 }

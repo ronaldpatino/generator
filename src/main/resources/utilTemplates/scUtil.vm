@@ -1,0 +1,179 @@
+package com.sigecloud.util;
+
+import javafx.application.Platform;
+import javafx.geometry.Pos;
+import javafx.util.Duration;
+import org.controlsfx.control.Notifications;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+public class ScUtil {
+
+    public enum NotificationType {
+        CONFIRM, ERROR, INFORMATION, SIMPLE, WARNING
+    }
+
+    static String stackTraceToString(Exception ex) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        ex.printStackTrace(pw);
+        pw.flush();
+        return sw.toString().replace(";"," ");
+    }
+
+    public static boolean valida_cedula_ruc(String numero_id) {
+        String error_valida = "";
+        try {
+            String num = numero_id.replace("-", "");
+            error_valida = "";
+            if ((num.length() == 10) || (num.length() == 13)) {
+                if (Integer.parseInt(num.substring(0, 2)) < 30) {
+                    if (num.length() == 10) {
+                        if (!valida_cedula(num)) {
+                            error_valida = "LA IDENTIFICACION NO PASO EL PROCESO DE VALIDACION ";
+                            return false;
+                        }
+                    }
+                    else if ((Integer.parseInt(num.substring(0, 10)) > 0) &&
+                            (Integer.parseInt(num.substring(10, 13)) > 0)) {
+                        if (Integer.parseInt(num.substring(2, 3)) < 6) {
+                            if (!valida_cedula(num.substring(0, 10))) {
+                                error_valida = "LA IDENTIFICACION NO PASO EL PROCESO DE VALIDACION ";
+                                return false;
+                            }
+                        }
+                        else {
+                            Integer dig_1 = Integer.valueOf(Integer.parseInt(num.substring(0, 1)));
+                            Integer dig_2 = Integer.valueOf(Integer.parseInt(num.substring(1, 2)));
+                            Integer dig_3 = Integer.valueOf(Integer.parseInt(num.substring(2, 3)));
+                            Integer dig_4 = Integer.valueOf(Integer.parseInt(num.substring(3, 4)));
+                            Integer dig_5 = Integer.valueOf(Integer.parseInt(num.substring(4, 5)));
+                            Integer dig_6 = Integer.valueOf(Integer.parseInt(num.substring(5, 6)));
+                            Integer dig_7 = Integer.valueOf(Integer.parseInt(num.substring(6, 7)));
+                            Integer dig_8 = Integer.valueOf(Integer.parseInt(num.substring(7, 8)));
+                            Integer dig_9 = Integer.valueOf(Integer.parseInt(num.substring(8, 9)));
+                            Integer dig_10 = Integer.valueOf(Integer.parseInt(num.substring(9, 10)));
+                            if (Integer.parseInt(num.substring(2, 3)) == 6) {
+                                Integer suma = Integer.valueOf((dig_1.intValue() * 3 + dig_2.intValue() * 2 + dig_3.intValue() * 7 + dig_4.intValue() * 6 + dig_5.intValue() * 5 + dig_6.intValue() * 4 + dig_7.intValue() * 3 + dig_8.intValue() * 2) % 11);
+                                if ((suma.intValue() == 0) && (dig_10.intValue() != 0)) {
+                                    error_valida = "LA IDENTIFICACION NO PASO EL PROCESO DE VALIDACION ";
+                                    return false;
+                                }
+                                if (((11 - suma.intValue() != dig_9.intValue()) && (suma.intValue() != 0)) || (suma.intValue() == 1)) {
+                                    error_valida = "LA IDENTIFICACION NO PASO EL PROCESO DE VALIDACION ";
+                                    return false;
+                                }
+                            }
+                            else if (Integer.parseInt(num.substring(2, 3)) == 9) {
+                                Integer suma = Integer.valueOf((dig_1.intValue() * 4 + dig_2.intValue() * 3 + dig_3.intValue() * 2 + dig_4.intValue() * 7 + dig_5.intValue() * 6 + dig_6.intValue() * 5 + dig_7.intValue() * 4 + dig_8.intValue() * 3 + dig_9.intValue() * 2) % 11);
+                                if ((suma.intValue() == 0) && (dig_10.intValue() != 0)) {
+                                    error_valida = "LA IDENTIFICACION NO PASO EL PROCESO DE VALIDACION ";
+                                    return false;
+                                }
+                                if ((11 - suma.intValue() != dig_10.intValue()) && (suma.intValue() != 0)) {
+                                    error_valida = "LA IDENTIFICACION NO PASO EL PROCESO DE VALIDACION ";
+                                    return false;
+                                }
+                            }
+                            else {
+                                error_valida = "LA IDENTIFICACION NO PASO EL PROCESO DE VALIDACION ";
+                                return false;
+                            }
+                        }
+                    }
+                    else {
+                        error_valida = "LA IDENTIFICACION NO PASO EL PROCESO DE VALIDACION ";
+                        return false;
+                    }
+                }
+                else {
+                    error_valida = "LA IDENTIFICACION NO PASO EL PROCESO DE VALIDACION ";
+                    return false;
+                }
+            }
+            else {
+                error_valida = "LA IDENTIFICACION DEBE TENER 10 CARACTERES(CEDULA O 13 CARACTERES (RUC) ";
+                return false;
+            }
+            return true;
+        }
+        catch (Exception e) {
+            error_valida = "LA IDENTIFICACION NO PASO EL PROCESO DE VALIDACION ";
+        }
+        return false;
+    }
+
+    private static boolean valida_cedula(String cedula) {
+        Integer cuenta = Integer.valueOf(0);
+        Integer digito = Integer.valueOf(1);
+        Double total_digito = Double.valueOf(0.0D);
+        Integer i;
+        while (cuenta.intValue() < 9) {
+            try {
+                i = Integer.valueOf(Integer.parseInt(cedula.substring(cuenta.intValue(), cuenta.intValue() + 1)));
+
+                cuenta = Integer.valueOf(cuenta.intValue() + 1);
+            } catch (Exception e) {
+                return false;
+            }
+            if (cuenta.intValue() % 2 == 0) {
+                digito = i;
+            } else {
+                digito = Integer.valueOf(i.intValue() * 2);
+            }
+            if (digito.intValue() > 9) {
+                digito = Integer.valueOf(digito.intValue() - 9);
+            }
+            total_digito = Double.valueOf(total_digito.doubleValue() + digito.intValue());
+            i = Integer.valueOf(0);
+        }
+        Double verifica = Double.valueOf(total_digito.doubleValue() / 10.0D);
+
+        verifica = Double.valueOf(verifica.doubleValue() + 1.0D);
+        String a = String.valueOf(verifica);
+        String b = a.substring(0, 1);
+        verifica = Double.valueOf(Double.parseDouble(b) * 10.0D);
+        verifica = Double.valueOf(verifica.doubleValue() - total_digito.doubleValue());
+        if (verifica.doubleValue() == 10.0D) {
+            verifica = Double.valueOf(0.0D);
+        }
+        if (verifica.doubleValue() != Double.parseDouble(cedula.substring(9, 10))) {
+            return false;
+        }
+        return true;
+    }
+
+    public static void notification(String title, String text, Duration d, ScUtil.NotificationType t) {
+
+        //Check if it is JavaFX Application Thread
+        if (!Platform.isFxApplicationThread()) {
+            Platform.runLater(() -> notification(title, text, d, t));
+            return;
+        }
+
+        Notifications notification = Notifications.create().title(title).text(text).position(Pos.TOP_CENTER);
+        notification.hideAfter(d);
+
+        switch (t) {
+            case CONFIRM:
+                notification.showConfirm();
+                break;
+            case ERROR:
+                notification.showError();
+                break;
+            case INFORMATION:
+                notification.showInformation();
+                break;
+            case SIMPLE:
+                notification.show();
+                break;
+            case WARNING:
+                notification.showWarning();
+                break;
+            default:
+                break;
+        }
+
+    }
+}

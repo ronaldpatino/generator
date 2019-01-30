@@ -1,4 +1,4 @@
-package ${mainJavaPackage}
+package ${mainJavaPackage};
 
 import com.airhacks.afterburner.injection.Injector;
 import com.sigecloud.app.dashboard.DashboardView;

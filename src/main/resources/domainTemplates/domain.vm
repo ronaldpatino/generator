@@ -1,0 +1,38 @@
+package ${rootJavaPackage}.domain;
+
+import javax.persistence.*;
+import java.util.Objects;
+
+
+@Entity
+@Table(name = "${classNameInstance}")
+public class ${className} {
+
+#foreach( $field in $fields )
+    private ${field.dataType} ${field.name};
+#end
+
+#foreach( $field in $fields )
+    #if($field.name == "id")
+    @Id
+    #else
+    @Basic
+    #end
+    @Column(name = "${field.name}")
+    public int get$stringUtils.capitalize(${field.name})() {
+        return ${field.name};
+    }
+
+    public void set$stringUtils.capitalize(${field.name})(${field.dataType} ${field.name}) {
+        this.${field.name} = ${field.name};
+    }
+
+#end
+
+    /*
+    @Override
+    public String toString() {
+        return "";
+    }
+    */
+}

@@ -1,6 +1,7 @@
 package com.sigecloud.util;
 
 import com.sigecloud.pojo.Widget;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -31,6 +32,7 @@ public class CodeGenerator {
     private VelocityContext pagerContex;
     private VelocityContext hibernateContex;
     private VelocityContext mavenContex;
+    private VelocityContext domainContex;
     private Template cssTemplate;
     private Template fxmlTemplate;
     private Template presenterTemplate;
@@ -49,6 +51,12 @@ public class CodeGenerator {
     private Template iPagerTemplate;
     private Template hibernateTemplate;
     private Template mavenTemplate;
+    private Template domainTemplate;
+    private Template configTemplate;
+    private Template fxUtilTemplate;
+    private Template hibernateUtilsTemplate;
+    private Template scUtilTemplate;
+    private Template configPropertiesTemplate;
 
     private Widget w;
 
@@ -108,6 +116,15 @@ public class CodeGenerator {
         iGenericServiceTemplate = velocityEngine.getTemplate(ScUtil.IGENERIC_SERVICE_TEMPLATE_FILE);
 
         hibernateTemplate = velocityEngine.getTemplate(ScUtil.HIBERNATE_TEMPLATE_FILE);
+
+        domainTemplate = velocityEngine.getTemplate(ScUtil.DOMAIN_TEMPLATE_FILE);
+
+        configTemplate = velocityEngine.getTemplate(ScUtil.DOMAIN_TEMPLATE_FILE);
+        fxUtilTemplate = velocityEngine.getTemplate(ScUtil.DOMAIN_TEMPLATE_FILE);
+        hibernateUtilsTemplate = velocityEngine.getTemplate(ScUtil.DOMAIN_TEMPLATE_FILE);
+        scUtilTemplate = velocityEngine.getTemplate(ScUtil.DOMAIN_TEMPLATE_FILE);
+        configPropertiesTemplate = velocityEngine.getTemplate(ScUtil.DOMAIN_TEMPLATE_FILE);
+
 
     }
 
@@ -356,8 +373,6 @@ public class CodeGenerator {
         ScUtil.writeToResource(ScUtil.HIBERNATE + ScUtil.DOT_XML,  hibernate);
 
         /*Maven */
-
-
         mavenContex = new VelocityContext();
         mavenContex.put("rootJavaPackage", w.getRootJavaPackage());
         mavenContex.put("artifactId", "generator");
@@ -368,6 +383,28 @@ public class CodeGenerator {
 
         ScUtil.writeMaven(maven);
 
+
+        /*Domain */
+        StringUtils stringUtils = new StringUtils();
+        domainContex = new VelocityContext();
+        domainContex.put("rootJavaPackage", w.getRootJavaPackage());
+        domainContex.put("className", w.getClassName());
+        domainContex.put("classNameInstance", w.getClassNameInstance());
+        domainContex.put("fields", w.getFields());
+        domainContex.put("stringUtils", stringUtils);
+
+
+
+        StringWriter domain = new StringWriter();
+        domainTemplate.merge(domainContex, domain);
+
+        ScUtil.writeToFile(w.getClassName() +
+                ScUtil.DOT_JAVA,
+                domain,
+                w.getRootJavaPackage().replace(ScUtil.DOT, File.separator) +
+                        File.separator +
+                        "domain" +
+                        File.separator );
     }
 
 

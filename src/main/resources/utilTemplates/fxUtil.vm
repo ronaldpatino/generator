@@ -1,0 +1,38 @@
+package com.sigecloud.util;
+
+import javafx.scene.control.TextFormatter;
+import javafx.util.converter.*;
+
+import java.math.BigDecimal;
+import java.util.regex.Pattern;
+
+public class FxUtil {
+
+    public static TextFormatter<BigDecimal> BigDecimalFormatter() {
+        String regex = Config.getValue("format.big_decimal");
+
+        Pattern validBigDecimalText = Pattern.compile(regex);
+
+        return new TextFormatter<>(new BigDecimalStringConverter(),
+                new BigDecimal("0.0"),
+                change -> {
+                    String newText = change.getControlNewText();
+                    if (validBigDecimalText.matcher(newText).matches()) {
+                        return change;
+                    } else return null;
+                });
+    }
+
+    public static TextFormatter<String> TextFormatter(String regex, String defaultValue) {
+
+        Pattern validString = Pattern.compile(regex);
+        return new TextFormatter<String>(new DefaultStringConverter(),
+                defaultValue,
+                change -> {
+                    String newText = change.getControlNewText();
+                    if (validString.matcher(newText).matches()) {
+                        return change;
+                    } else return null;
+                });
+    }
+}

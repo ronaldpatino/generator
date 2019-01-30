@@ -1,4 +1,4 @@
-package ${rootJavaPackage}.${appPackage}.${dashboardPackage}
+package ${rootJavaPackage}.${appPackage}.${dashboardPackage};
 
 import ${menuImportPackage}.${className}View;
 
