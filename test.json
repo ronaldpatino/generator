@@ -18,8 +18,8 @@
       "label": "ID",
       "min": null,
       "max": null,
-      "validate": true,
-      "visible": true,
+      "validate": false,
+      "visible": false,
       "editable": false
     },
     {
