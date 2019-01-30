@@ -51,13 +51,16 @@ public class ScUtil {
     public static String DAO_GENERIC = "generic";
     public static String DAO_SERVICE = "service";
     public static String GENERIC_DAO_IMPL = "GenericDAOImpl";
-    public static String IGENERIC_DAO = "IGenericDAOImpl";
+    public static String IGENERIC_DAO = "IGenericDAO";
     public static String GENERIC_SERVICE_IMPL = "GenericServiceImpl";
-    public static String IGENERIC_SERVICE = "IGenericServiceImpl";
+    public static String IGENERIC_SERVICE = "IGenericService";
     public static String IPAGER = "IPager";
     public static String PAGER = "Pager";
     public static String HIBERNATE = "hibernate.cfg";
     public static String POM = "pom";
+    public static String GENERATED = "generated";
+    public static String MAIN = "main";
+    public static String JAVA = "java";
 
 
     public static String SAVE_PATH = System.getProperty("user.dir") +
@@ -85,21 +88,28 @@ public class ScUtil {
             File.separator;
 
 
+    public static String CONFIG = "config";
     public static String DASHBOARD = "dashboard";
     public static String APP = "app";
     public static String DASHBOARD_CLASSNAME = "Dashboard";
+    public static String CONFIG_CLASSNAME = "Config";
+    public static String FXUTIL_CLASSNAME = "FxUtil";
+    public static String HIBERNATEUTIL_CLASSNAME = "HibernateUtils";
+    public static String SCUTIL_CLASSNAME = "ScUtil";
     public static String DASHBOARD_CLASSNAME_INSTANCE = "dashboard";
     public static String DOT = ".";
     public static String PRESENTER = "Presenter";
     public static String VIEW = "View";
     public static String SERVICE = "Service";
     public static String MENU = "menu";
+    public static String UTIL = "util";
 
     public static String DOT_JAVA = ".java";
     public static String DOT_CSS = ".css";
     public static String DOT_FXML = ".fxml";
     public static String DOT_VM = ".vm";
     public static String DOT_XML = ".xml";
+    public static String DOT_PROPERTIES = ".properties";
 
 
 
@@ -177,5 +187,39 @@ public class ScUtil {
         }
     }
 
+    public static  void writeConfig(StringWriter contentToWrite) {
+
+        String fileToSave = HOME_SAVE_PATH + CONFIG + DOT_PROPERTIES;
+
+        try {
+
+            FileWriter fw = new FileWriter(fileToSave);
+            fw.write(contentToWrite.toString());
+            fw.close();
+
+        } catch (IOException e) {
+            LOGGER.error("ERROR - Could not save file {}", fileToSave);
+            LOGGER.error(e.toString());
+        }
+    }
+
+
+
+    public static  void writeToFile(String path, String fileToWrite, StringWriter contentToWrite) {
+
+        String fileToSave = path + File.separator +  fileToWrite;
+
+        try {
+
+            new File(path + File.separator).mkdirs();
+            FileWriter fw = new FileWriter(fileToSave);
+            fw.write(contentToWrite.toString());
+            fw.close();
+
+        } catch (IOException e) {
+            LOGGER.error("ERROR - Could not save file {}", fileToSave);
+            LOGGER.error(e.toString());
+        }
+    }
 }
 

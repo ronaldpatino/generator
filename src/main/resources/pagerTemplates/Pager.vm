@@ -1,6 +1,6 @@
 package ${pagerPackage};
 
-import ${javaPackage}.${daoService}.GenericServiceImpl
+import ${javaPackage}.${daoService}.GenericServiceImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;

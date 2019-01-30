@@ -1,4 +1,4 @@
-package com.sigecloud.util;
+package ${utilPackage};
 
 import javafx.scene.control.TextFormatter;
 import javafx.util.converter.*;

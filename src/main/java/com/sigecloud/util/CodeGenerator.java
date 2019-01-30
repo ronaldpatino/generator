@@ -33,6 +33,12 @@ public class CodeGenerator {
     private VelocityContext hibernateContex;
     private VelocityContext mavenContex;
     private VelocityContext domainContex;
+    private VelocityContext configPropertiesContext;
+    private VelocityContext configContext;
+    private VelocityContext fxUtilContext;
+    private VelocityContext hibernateUtilContex;
+    private VelocityContext scUtilContex;
+
     private Template cssTemplate;
     private Template fxmlTemplate;
     private Template presenterTemplate;
@@ -59,6 +65,7 @@ public class CodeGenerator {
     private Template configPropertiesTemplate;
 
     private Widget w;
+
 
     public CodeGenerator(Widget widget) {
 
@@ -119,11 +126,11 @@ public class CodeGenerator {
 
         domainTemplate = velocityEngine.getTemplate(ScUtil.DOMAIN_TEMPLATE_FILE);
 
-        configTemplate = velocityEngine.getTemplate(ScUtil.DOMAIN_TEMPLATE_FILE);
-        fxUtilTemplate = velocityEngine.getTemplate(ScUtil.DOMAIN_TEMPLATE_FILE);
-        hibernateUtilsTemplate = velocityEngine.getTemplate(ScUtil.DOMAIN_TEMPLATE_FILE);
-        scUtilTemplate = velocityEngine.getTemplate(ScUtil.DOMAIN_TEMPLATE_FILE);
-        configPropertiesTemplate = velocityEngine.getTemplate(ScUtil.DOMAIN_TEMPLATE_FILE);
+        configTemplate = velocityEngine.getTemplate(ScUtil.CONFIG_TEMPLATE_FILE);
+        fxUtilTemplate = velocityEngine.getTemplate(ScUtil.FXUTIL_TEMPLATE_FILE);
+        hibernateUtilsTemplate = velocityEngine.getTemplate(ScUtil.HIBERNATE_UTILS_TEMPLATE_FILE);
+        scUtilTemplate = velocityEngine.getTemplate(ScUtil.SCUTIL_TEMPLATE_FILE);
+        configPropertiesTemplate = velocityEngine.getTemplate(ScUtil.CONFIG_PROPERTIES_TEMPLATE_FILE);
 
 
     }
@@ -167,7 +174,8 @@ public class CodeGenerator {
         mainTemplate.merge(context, mainJavaApp);
 
         ScUtil.writeToFile(w.getClassName().toLowerCase() + ".css", css, JAVA_PACKAGE_PATH);
-        ScUtil.writeToFile(w.getClassName() + ScUtil.DOT_FXML, fxml, JAVA_PACKAGE_PATH);
+        //@TODO change to FXML file to write to camell case
+        ScUtil.writeToFile(w.getClassName().toLowerCase() + ScUtil.DOT_FXML, fxml, JAVA_PACKAGE_PATH);
         ScUtil.writeToFile(w.getClassName() + ScUtil.PRESENTER +
                 ScUtil.DOT_JAVA, presenter,
                 JAVA_PACKAGE_PATH);
@@ -226,9 +234,6 @@ public class CodeGenerator {
         dashboardContex.put("onAction", ScUtil.MENU + w.getClassName());
         dashboardContex.put("menuText", w.getClassName());
         dashboardContex.put("menuImportPackage", w.getJavaPackage());
-        dashboardContex.put("className", w.getClassName());
-        dashboardContex.put("classNameInstance", w.getClassNameInstance());
-
 
 
         StringWriter dashboardPresenter = new StringWriter();
@@ -259,7 +264,7 @@ public class CodeGenerator {
                 dashboardView,
                 DASHBOARD_JAVA_PACKAGE_PATH);
 
-        ScUtil.writeToFile(ScUtil.DASHBOARD_CLASSNAME +
+        ScUtil.writeToFile(ScUtil.DASHBOARD_CLASSNAME.toLowerCase() +
                 ScUtil.DOT_FXML,
                 dashboardFxml,
                 DASHBOARD_JAVA_PACKAGE_PATH);
@@ -393,8 +398,6 @@ public class CodeGenerator {
         domainContex.put("fields", w.getFields());
         domainContex.put("stringUtils", stringUtils);
 
-
-
         StringWriter domain = new StringWriter();
         domainTemplate.merge(domainContex, domain);
 
@@ -405,6 +408,71 @@ public class CodeGenerator {
                         File.separator +
                         "domain" +
                         File.separator );
+
+
+        /*config.properties*/
+        StringWriter configProperties = new StringWriter();
+        configPropertiesContext = new VelocityContext();
+        configPropertiesTemplate.merge(configPropertiesContext, configProperties);
+        ScUtil.writeConfig(configProperties);
+
+
+        String utilPath = System.getProperty("user.dir") +
+                File.separator +
+                ScUtil.GENERATED +
+                File.separator +
+                ScUtil.MAIN +
+                File.separator +
+                ScUtil.JAVA +
+                File.separator +
+                w.getRootJavaPackage().replace(ScUtil.DOT, File.separator) +
+                File.separator +
+                ScUtil.UTIL_PACKAGE;
+
+
+        /*config handling */
+        StringWriter config = new StringWriter();
+        configContext = new VelocityContext();
+        configContext.put("utilPackage", w.getUtilJavaPackage());
+        configTemplate.merge(configContext, config);
+
+        ScUtil.writeToFile(utilPath,
+                ScUtil.CONFIG_CLASSNAME + ScUtil.DOT_JAVA,
+                config);
+
+
+
+        /*fxUtil*/
+        StringWriter fxUtil = new StringWriter();
+
+        fxUtilContext = new VelocityContext();
+        fxUtilContext.put("utilPackage", w.getUtilJavaPackage());
+        fxUtilTemplate.merge(fxUtilContext, fxUtil);
+
+        ScUtil.writeToFile(utilPath,
+                ScUtil.FXUTIL_CLASSNAME + ScUtil.DOT_JAVA,
+                fxUtil);
+
+
+        /*hibernateUtil*/
+        StringWriter hibernateUtil = new StringWriter();
+        hibernateUtilContex = new VelocityContext();
+        hibernateUtilContex.put("utilPackage", w.getUtilJavaPackage());
+        hibernateUtilsTemplate.merge(hibernateUtilContex, hibernateUtil);
+        ScUtil.writeToFile(utilPath,
+                ScUtil.HIBERNATEUTIL_CLASSNAME+ ScUtil.DOT_JAVA,
+                hibernateUtil);
+
+        /*ScUtil*/
+        StringWriter scUtil = new StringWriter();
+        scUtilContex = new VelocityContext();
+        scUtilContex.put("utilPackage", w.getUtilJavaPackage());
+        scUtilTemplate.merge(scUtilContex, scUtil);
+        ScUtil.writeToFile(utilPath,
+                ScUtil.SCUTIL_CLASSNAME + ScUtil.DOT_JAVA,
+                scUtil);
+
+
     }
 
 

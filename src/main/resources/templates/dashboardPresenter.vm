@@ -1,5 +1,7 @@
 package ${rootJavaPackage}.${appPackage}.${dashboardPackage};
 
+
+//@TODO Add imports to CRUD views from an array of objects
 import ${menuImportPackage}.${className}View;
 
 import javafx.event.ActionEvent;

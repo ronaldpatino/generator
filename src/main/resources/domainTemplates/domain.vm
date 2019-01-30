@@ -19,7 +19,7 @@ public class ${className} {
     @Basic
     #end
     @Column(name = "${field.name}")
-    public int get$stringUtils.capitalize(${field.name})() {
+    public ${field.dataType} get$stringUtils.capitalize(${field.name})() {
         return ${field.name};
     }
 
