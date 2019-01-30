@@ -192,6 +192,7 @@ public class ${className}Presenter implements Initializable {
         if (validateForm()){
             if (!editActive) {
 
+                LOGGER.info("Inserting {} into DB", ${classNameInstance});
                 if (${classNameInstance}Service.save(${classNameInstance}) != null) {
                     reset${className}Form();
                     callPaginate();
@@ -211,7 +212,7 @@ public class ${className}Presenter implements Initializable {
 
             else {
 
-                LOGGER.info("Updating  " + ${classNameInstance});
+                LOGGER.info("Updating {} into DB", ${classNameInstance});
 
                 if (${classNameInstance}Service.update(${classNameInstance})) {
                     editActive = false;

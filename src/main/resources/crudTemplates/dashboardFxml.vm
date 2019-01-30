@@ -25,6 +25,6 @@
                 </Menu>
             </menus>
         </MenuBar>
-        <VBox fx:id="contenido" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0" />
+        <VBox fx:id="dashBoardContent" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0" />
     </children>
 </VBox>
