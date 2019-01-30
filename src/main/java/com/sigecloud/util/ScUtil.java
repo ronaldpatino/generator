@@ -11,16 +11,16 @@ public class ScUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScUtil.class);
 
-    public static String CSS_TEMPLATE_FILE = "templates/css.vm";
-    public static String FXML_TEMPLATE_FILE = "templates/fxml.vm";
-    public static String PRESENTER_TEMPLATE_FILE = "templates/presenter.vm";
-    public static String VIEW_TEMPLATE_FILE = "templates/view.vm";
-    public static String SERVICE_TEMPLATE_FILE = "templates/service.vm";
-    public static String EDIT_CHECK_TEMPLATE_FILE = "templates/editCheck.vm";
-    public static String INSERT_CHECK_TEMPLATE_FILE = "templates/insertCheck.vm";
-    public static String DASHBOARD_PRESENTER_TEMPLATE_FILE = "templates/dashboardPresenter.vm";
-    public static String DASHBOARD_FXML_TEMPLATE_FILE = "templates/dashboardFxml.vm";
-    public static String MAIN_TEMPLATE_FILE = "templates/main.vm";
+    public static String CSS_TEMPLATE_FILE = "crudTemplates/css.vm";
+    public static String FXML_TEMPLATE_FILE = "crudTemplates/fxml.vm";
+    public static String PRESENTER_TEMPLATE_FILE = "crudTemplates/presenter.vm";
+    public static String VIEW_TEMPLATE_FILE = "crudTemplates/view.vm";
+    public static String SERVICE_TEMPLATE_FILE = "crudTemplates/service.vm";
+    public static String EDIT_CHECK_TEMPLATE_FILE = "crudTemplates/editCheck.vm";
+    public static String INSERT_CHECK_TEMPLATE_FILE = "crudTemplates/insertCheck.vm";
+    public static String DASHBOARD_PRESENTER_TEMPLATE_FILE = "crudTemplates/dashboardPresenter.vm";
+    public static String DASHBOARD_FXML_TEMPLATE_FILE = "crudTemplates/dashboardFxml.vm";
+    public static String MAIN_TEMPLATE_FILE = "crudTemplates/main.vm";
 
     public static String GENERIC_DAO_IMPL_TEMPLATE_FILE = "daoTemplates/GenericDAOImpl.vm";
     public static String GENERIC_SERVICE_IMPL_TEMPLATE_FILE = "daoTemplates/GenericServiceImpl.vm";
@@ -44,7 +44,7 @@ public class ScUtil {
 
 
 
-    public static String DAO_DIR = "templates/daoTemplates";
+    public static String DAO_DIR = "crudTemplates/daoTemplates";
     public static String UTIL_PACKAGE = "util";
     public static String PAGER_PACKAGE = "pager";
     public static String DAO_PACKAGE = "dao";
