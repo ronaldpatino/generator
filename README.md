@@ -1,2 +1,6 @@
 # generator
-A WIP JavaFX CRUD code generator
+A JavaFX CRUD code generator usign Hibernate and Apache Velocity
+
+Still WIP 
+
+
